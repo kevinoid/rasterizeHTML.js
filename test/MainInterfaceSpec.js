@@ -1,3 +1,6 @@
+var rasterizeHTML = require('../src/rasterizeHTML'),
+    rasterizeHTMLInline = require('../src/inline');
+
 describe("Main interface of rasterizeHTML.js", function () {
     var callbackCaller = function (doc, options, callback) { callback([]); },
         svgImage = "svg image",

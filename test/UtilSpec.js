@@ -1,3 +1,6 @@
+var rasterizeHTML = require('../src/rasterizeHTML'),
+    inlineUtil = require('../src/inlineUtil');
+
 describe("Utilities function", function () {
     // TODO tests for log and getConstantUniqueIdFor
 
@@ -662,7 +665,7 @@ describe("Utilities function", function () {
                 ajaxRequest = jasmine.createSpyObj("ajaxRequest", ["open", "addEventListener", "overrideMimeType", "send"]);
                 spyOn(window, "XMLHttpRequest").andReturn(ajaxRequest);
 
-                spyOn(rasterizeHTMLInline.util, "joinUrl").andCallFake(function (baseUrl, url) {
+                spyOn(inlineUtil, "joinUrl").andCallFake(function (baseUrl, url) {
                     return baseUrl ? baseUrl + url : url;
                 });
             });
@@ -708,7 +711,7 @@ describe("Utilities function", function () {
                 expect(ajaxRequest.open.mostRecentCall.args[1]).toEqual('non_existing_url.html?_=42');
 
                 dateNowSpy.andReturn(43);
-                rasterizeHTMLInline.util.ajax("non_existing_url.html", {cache: 'none'}, function () {}, function () {});
+                inlineUtil.ajax("non_existing_url.html", {cache: 'none'}, function () {}, function () {});
                 expect(ajaxRequest.open.mostRecentCall.args[1]).toEqual('non_existing_url.html?_=43');
             });
 
@@ -717,7 +720,7 @@ describe("Utilities function", function () {
 
                 expect(ajaxRequest.open.mostRecentCall.args[1]).toEqual('http://example.com/relative/url.html');
 
-                expect(rasterizeHTMLInline.util.joinUrl).toHaveBeenCalledWith("http://example.com/", "relative/url.html");
+                expect(inlineUtil.joinUrl).toHaveBeenCalledWith("http://example.com/", "relative/url.html");
             });
         });
     });

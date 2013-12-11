@@ -1,16 +1,20 @@
+var rasterizeHTMLInline = require('../src/inline'),
+    inlineCss = require('../src/inlineCss'),
+    inlineUtil = require('../src/inlineUtil');
+
 describe("Import styles", function () {
     var doc, loadCSSImportsForRulesSpy, loadAndInlineCSSResourcesForRulesSpy, callback;
 
     beforeEach(function () {
         doc = document.implementation.createHTMLDocument("");
 
-        loadCSSImportsForRulesSpy = spyOn(rasterizeHTMLInline.css, 'loadCSSImportsForRules').andCallFake(function (cssRules, alreadyLoadedCssUrls, options, callback) {
+        loadCSSImportsForRulesSpy = spyOn(inlineCss, 'loadCSSImportsForRules').andCallFake(function (cssRules, alreadyLoadedCssUrls, options, callback) {
             callback(false, []);
         });
-        loadAndInlineCSSResourcesForRulesSpy = spyOn(rasterizeHTMLInline.css, 'loadAndInlineCSSResourcesForRules').andCallFake(function (cssRules, options, callback) {
+        loadAndInlineCSSResourcesForRulesSpy = spyOn(inlineCss, 'loadAndInlineCSSResourcesForRules').andCallFake(function (cssRules, options, callback) {
             callback(false, []);
         });
-        spyOn(rasterizeHTMLInline.util, 'clone').andCallFake(function (object) {
+        spyOn(inlineUtil, 'clone').andCallFake(function (object) {
             return object;
         });
 
@@ -88,7 +92,7 @@ describe("Import styles", function () {
     });
 
     it("should respect the document's baseURI", function () {
-        var getDocumentBaseUrlSpy = spyOn(rasterizeHTMLInline.util, 'getDocumentBaseUrl').andCallThrough();
+        var getDocumentBaseUrlSpy = spyOn(inlineUtil, 'getDocumentBaseUrl').andCallThrough();
         doc = rasterizeHTMLTestHelper.readDocumentFixture("importCss.html");
 
         rasterizeHTMLInline.loadAndInlineStyles(doc, callback);

@@ -1,3 +1,6 @@
+var rasterizeHTMLInline = require('../src/inline'),
+    inlineUtil = require('../src/inlineUtil');
+
 describe("Inline CSS content (integration)", function () {
     var doc, callback, ajaxSpy, ajaxSpyUrlMap = {};
 
@@ -5,7 +8,7 @@ describe("Inline CSS content (integration)", function () {
         doc = document.implementation.createHTMLDocument("");
         callback = jasmine.createSpy("callback");
 
-        ajaxSpy = spyOn(rasterizeHTMLInline.util, "ajax").andCallFake(function (url, options, success) {
+        ajaxSpy = spyOn(inlineUtil, "ajax").andCallFake(function (url, options, success) {
             var respondWith = ajaxSpyUrlMap[url];
             if (respondWith) {
                 success(respondWith);

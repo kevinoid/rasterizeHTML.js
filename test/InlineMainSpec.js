@@ -1,3 +1,5 @@
+var rasterizeHTMLInline = require('../src/inline');
+
 describe("Inline main", function () {
     var callbackCaller = function (doc, options, callback) { callback([]); },
         callback = jasmine.createSpy("callback"),

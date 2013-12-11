@@ -1,3 +1,5 @@
+var rasterizeHTML = require('../src/rasterizeHTML');
+
 describe("working around on Firefox and Webkit to fix resources not being rendered consistently", function () {
     var originalUserAgent = window.navigator.userAgent,
         originalNavigator = window.navigator,

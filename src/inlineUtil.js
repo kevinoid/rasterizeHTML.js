@@ -1,226 +1,223 @@
-window.rasterizeHTMLInline = (function (module, window, url) {
-    "use strict";
+"use strict";
 
-    module.util = {};
+var requireExternalDependencyWorkaround = require('./requireExternalDependencyWorkaround'),
+    url = requireExternalDependencyWorkaround('url');
 
-    module.util.getDocumentBaseUrl = function (doc) {
-        if (doc.baseURI !== 'about:blank') {
-            return doc.baseURI;
+module.exports.getDocumentBaseUrl = function (doc) {
+    if (doc.baseURI !== 'about:blank') {
+        return doc.baseURI;
+    }
+
+    return null;
+};
+
+module.exports.clone = function (object) {
+    var theClone = {},
+        i;
+    for (i in object) {
+        if (object.hasOwnProperty(i)) {
+           theClone[i] = object[i];
         }
+    }
+    return theClone;
+};
 
-        return null;
-    };
+module.exports.cloneArray = function (nodeList) {
+    return Array.prototype.slice.apply(nodeList, [0]);
+};
 
-    module.util.clone = function (object) {
-        var theClone = {},
-            i;
-        for (i in object) {
-            if (object.hasOwnProperty(i)) {
-               theClone[i] = object[i];
+module.exports.joinUrl = function (baseUrl, relUrl) {
+    return url.resolve(baseUrl, relUrl);
+};
+
+module.exports.isDataUri = function (url) {
+    return (/^data:/).test(url);
+};
+
+module.exports.map = function (list, func, callback) {
+    var completedCount = 0,
+        // Operating inline on array-like structures like document.getElementByTagName() (e.g. deleting a node),
+        // will change the original list
+        clonedList = module.exports.cloneArray(list),
+        results = [],
+        i;
+
+    if (clonedList.length === 0) {
+        callback(results);
+    }
+
+    var callForItem = function (idx) {
+        function funcFinishCallback(result) {
+            completedCount += 1;
+
+            results[idx] = result;
+
+            if (completedCount === clonedList.length) {
+                callback(results);
             }
         }
-        return theClone;
+
+        func(clonedList[idx], funcFinishCallback);
     };
 
-    module.util.cloneArray = function (nodeList) {
-        return Array.prototype.slice.apply(nodeList, [0]);
-    };
+    for(i = 0; i < clonedList.length; i++) {
+        callForItem(i);
+    }
+};
 
-    module.util.joinUrl = function (baseUrl, relUrl) {
-        return url.resolve(baseUrl, relUrl);
-    };
+var lastCacheDate = null;
 
-    module.util.isDataUri = function (url) {
-        return (/^data:/).test(url);
-    };
-
-    module.util.map = function (list, func, callback) {
-        var completedCount = 0,
-            // Operating inline on array-like structures like document.getElementByTagName() (e.g. deleting a node),
-            // will change the original list
-            clonedList = module.util.cloneArray(list),
-            results = [],
-            i;
-
-        if (clonedList.length === 0) {
-            callback(results);
+var getUncachableURL = function (url, cache) {
+    if (cache === false || cache === 'none' || cache === 'repeated') {
+        if (lastCacheDate === null || cache !== 'repeated') {
+            lastCacheDate = Date.now();
         }
+        return url + "?_=" + lastCacheDate;
+    } else {
+        return url;
+    }
+};
 
-        var callForItem = function (idx) {
-            function funcFinishCallback(result) {
-                completedCount += 1;
+module.exports.ajax = function (url, options, successCallback, errorCallback) {
+    var ajaxRequest = new window.XMLHttpRequest(),
+        joinedUrl = module.exports.joinUrl(options.baseUrl, url),
+        augmentedUrl;
 
-                results[idx] = result;
+    augmentedUrl = getUncachableURL(joinedUrl, options.cache);
 
-                if (completedCount === clonedList.length) {
-                    callback(results);
-                }
-            }
-
-            func(clonedList[idx], funcFinishCallback);
-        };
-
-        for(i = 0; i < clonedList.length; i++) {
-            callForItem(i);
-        }
-    };
-
-    var lastCacheDate = null;
-
-    var getUncachableURL = function (url, cache) {
-        if (cache === false || cache === 'none' || cache === 'repeated') {
-            if (lastCacheDate === null || cache !== 'repeated') {
-                lastCacheDate = Date.now();
-            }
-            return url + "?_=" + lastCacheDate;
+    ajaxRequest.addEventListener("load", function () {
+        if (ajaxRequest.status === 200 || ajaxRequest.status === 0) {
+            successCallback(ajaxRequest.response);
         } else {
-            return url;
-        }
-    };
-
-    module.util.ajax = function (url, options, successCallback, errorCallback) {
-        var ajaxRequest = new window.XMLHttpRequest(),
-            joinedUrl = module.util.joinUrl(options.baseUrl, url),
-            augmentedUrl;
-
-        augmentedUrl = getUncachableURL(joinedUrl, options.cache);
-
-        ajaxRequest.addEventListener("load", function () {
-            if (ajaxRequest.status === 200 || ajaxRequest.status === 0) {
-                successCallback(ajaxRequest.response);
-            } else {
-                errorCallback();
-            }
-        }, false);
-
-        ajaxRequest.addEventListener("error", function () {
-            errorCallback();
-        }, false);
-
-        try {
-            ajaxRequest.open('GET', augmentedUrl, true);
-            ajaxRequest.overrideMimeType(options.mimeType);
-            ajaxRequest.send(null);
-        } catch (err) {
             errorCallback();
         }
-    };
+    }, false);
 
-    module.util.binaryAjax = function (url, options, successCallback, errorCallback) {
-        var binaryContent = "",
-            ajaxOptions = module.util.clone(options);
+    ajaxRequest.addEventListener("error", function () {
+        errorCallback();
+    }, false);
 
-        ajaxOptions.mimeType = 'text/plain; charset=x-user-defined';
+    try {
+        ajaxRequest.open('GET', augmentedUrl, true);
+        ajaxRequest.overrideMimeType(options.mimeType);
+        ajaxRequest.send(null);
+    } catch (err) {
+        errorCallback();
+    }
+};
 
-        module.util.ajax(url, ajaxOptions, function (content) {
-            for (var i = 0; i < content.length; i++) {
-                binaryContent += String.fromCharCode(content.charCodeAt(i) & 0xFF);
-            }
-            successCallback(binaryContent);
-        }, errorCallback);
-    };
+module.exports.binaryAjax = function (url, options, successCallback, errorCallback) {
+    var binaryContent = "",
+        ajaxOptions = module.exports.clone(options);
 
-    var detectMimeType = function (content) {
-        var startsWith = function (string, substring) {
-            return string.substring(0, substring.length) === substring;
-        };
+    ajaxOptions.mimeType = 'text/plain; charset=x-user-defined';
 
-        if (startsWith(content, '<?xml') || startsWith(content, '<svg')) {
-            return 'image/svg+xml';
+    module.exports.ajax(url, ajaxOptions, function (content) {
+        for (var i = 0; i < content.length; i++) {
+            binaryContent += String.fromCharCode(content.charCodeAt(i) & 0xFF);
         }
-        return 'image/png';
+        successCallback(binaryContent);
+    }, errorCallback);
+};
+
+var detectMimeType = function (content) {
+    var startsWith = function (string, substring) {
+        return string.substring(0, substring.length) === substring;
     };
 
-    module.util.getDataURIForImageURL = function (url, options, successCallback, errorCallback) {
-        var base64Content, mimeType;
+    if (startsWith(content, '<?xml') || startsWith(content, '<svg')) {
+        return 'image/svg+xml';
+    }
+    return 'image/png';
+};
 
-        module.util.binaryAjax(url, options, function (content) {
-            base64Content = btoa(content);
+module.exports.getDataURIForImageURL = function (url, options, successCallback, errorCallback) {
+    var base64Content, mimeType;
 
-            mimeType = detectMimeType(content);
+    module.exports.binaryAjax(url, options, function (content) {
+        base64Content = btoa(content);
 
-            successCallback('data:' + mimeType + ';base64,' + base64Content);
-        }, function () {
-            errorCallback();
-        });
-    };
+        mimeType = detectMimeType(content);
 
-    var uniqueIdList = [];
+        successCallback('data:' + mimeType + ';base64,' + base64Content);
+    }, function () {
+        errorCallback();
+    });
+};
 
-    var constantUniqueIdFor = function (element) {
-        // HACK, using a list results in O(n), but how do we hash a function?
-        if (uniqueIdList.indexOf(element) < 0) {
-            uniqueIdList.push(element);
-        }
-        return uniqueIdList.indexOf(element);
-    };
+var uniqueIdList = [];
 
-    module.util.memoize = function (func, hasher, memo) {
-        if (typeof memo !== "object") {
-            throw new Error("cacheBucket is not an object");
-        }
+var constantUniqueIdFor = function (element) {
+    // HACK, using a list results in O(n), but how do we hash a function?
+    if (uniqueIdList.indexOf(element) < 0) {
+        uniqueIdList.push(element);
+    }
+    return uniqueIdList.indexOf(element);
+};
 
-        return function () {
-            var args = Array.prototype.slice.call(arguments),
-                successCallback, errorCallback;
+module.exports.memoize = function (func, hasher, memo) {
+    if (typeof memo !== "object") {
+        throw new Error("cacheBucket is not an object");
+    }
 
-            if (args.length > 2 && typeof args[args.length-2] === 'function') {
-                 errorCallback = args.pop();
-                 successCallback = args.pop();
-            } else {
-                successCallback = args.pop();
-            }
+    return function () {
+        var args = Array.prototype.slice.call(arguments),
+            successCallback, errorCallback;
 
-            var argumentHash = hasher(args),
-                funcHash = constantUniqueIdFor(func),
-                allArgs;
-
-            if (memo[funcHash] && memo[funcHash][argumentHash]) {
-                successCallback.apply(null, memo[funcHash][argumentHash]);
-            } else {
-                allArgs = args.concat(function () {
-                    memo[funcHash] = memo[funcHash] || {};
-                    memo[funcHash][argumentHash] = arguments;
-                    successCallback.apply(null, arguments);
-                });
-                if (errorCallback) {
-                    allArgs = allArgs.concat(errorCallback);
-                }
-                func.apply(null, allArgs);
-            }
-        };
-    };
-
-    var cloneObject = function(object) {
-        var newObject = {},
-            i;
-        for (i in object) {
-            if (object.hasOwnProperty(i)) {
-                newObject[i] = object[i];
-            }
-        }
-        return newObject;
-    };
-
-    var isFunction = function (func) {
-        return typeof func === "function";
-    };
-
-    module.util.parseOptionalParameters = function () { // args: options, callback
-        var parameters = {
-            options: {},
-            callback: null
-        };
-
-        if (isFunction(arguments[0])) {
-            parameters.callback = arguments[0];
+        if (args.length > 2 && typeof args[args.length-2] === 'function') {
+             errorCallback = args.pop();
+             successCallback = args.pop();
         } else {
-            parameters.options = cloneObject(arguments[0]);
-            parameters.callback = arguments[1] || null;
+            successCallback = args.pop();
         }
 
-        return parameters;
+        var argumentHash = hasher(args),
+            funcHash = constantUniqueIdFor(func),
+            allArgs;
+
+        if (memo[funcHash] && memo[funcHash][argumentHash]) {
+            successCallback.apply(null, memo[funcHash][argumentHash]);
+        } else {
+            allArgs = args.concat(function () {
+                memo[funcHash] = memo[funcHash] || {};
+                memo[funcHash][argumentHash] = arguments;
+                successCallback.apply(null, arguments);
+            });
+            if (errorCallback) {
+                allArgs = allArgs.concat(errorCallback);
+            }
+            func.apply(null, allArgs);
+        }
+    };
+};
+
+var cloneObject = function(object) {
+    var newObject = {},
+        i;
+    for (i in object) {
+        if (object.hasOwnProperty(i)) {
+            newObject[i] = object[i];
+        }
+    }
+    return newObject;
+};
+
+var isFunction = function (func) {
+    return typeof func === "function";
+};
+
+module.exports.parseOptionalParameters = function () { // args: options, callback
+    var parameters = {
+        options: {},
+        callback: null
     };
 
-    return module;
-}(window.rasterizeHTMLInline || {}, window, url));
+    if (isFunction(arguments[0])) {
+        parameters.callback = arguments[0];
+    } else {
+        parameters.options = cloneObject(arguments[0]);
+        parameters.callback = arguments[1] || null;
+    }
+
+    return parameters;
+};

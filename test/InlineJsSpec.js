@@ -1,3 +1,6 @@
+var rasterizeHTMLInline = require('../src/inline'),
+    inlineUtil = require('../src/inlineUtil');
+
 describe("JS inline", function () {
     var doc, joinUrlSpy, ajaxSpy, callback,
         externalScriptSrc, externalScript,
@@ -7,8 +10,8 @@ describe("JS inline", function () {
     beforeEach(function () {
         doc = document.implementation.createHTMLDocument("");
 
-        joinUrlSpy = spyOn(rasterizeHTMLInline.util, "joinUrl");
-        ajaxSpy = spyOn(rasterizeHTMLInline.util, "ajax");
+        joinUrlSpy = spyOn(inlineUtil, "joinUrl");
+        ajaxSpy = spyOn(inlineUtil, "ajax");
         callback = jasmine.createSpy("callback");
 
         externalScriptSrc = "url/some.js";
@@ -115,7 +118,7 @@ describe("JS inline", function () {
     });
 
     it("should respect the document's baseURI when loading linked JS", function () {
-        var getDocumentBaseUrlSpy = spyOn(rasterizeHTMLInline.util, 'getDocumentBaseUrl').andCallThrough();
+        var getDocumentBaseUrlSpy = spyOn(inlineUtil, 'getDocumentBaseUrl').andCallThrough();
 
         doc = rasterizeHTMLTestHelper.readDocumentFixture("externalJS.html");
 

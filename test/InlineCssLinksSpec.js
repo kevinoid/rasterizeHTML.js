@@ -1,3 +1,7 @@
+var rasterizeHTMLInline = require('../src/inline'),
+    inlineCss = require('../src/inlineCss'),
+    inlineUtil = require('../src/inlineUtil');
+
 describe("Inline CSS links", function () {
     var doc, anotherCssLink, cssLink, extractCssUrlSpy, joinUrlSpy, ajaxSpy,
         adjustPathsOfCssResourcesSpy, loadCSSImportsForRulesSpy, loadAndInlineCSSResourcesForRulesSpy,
@@ -6,20 +10,20 @@ describe("Inline CSS links", function () {
     beforeEach(function () {
         doc = document.implementation.createHTMLDocument("");
 
-        extractCssUrlSpy = spyOn(rasterizeHTMLInline.css, "extractCssUrl").andCallFake(function (cssUrl) {
+        extractCssUrlSpy = spyOn(inlineCss, "extractCssUrl").andCallFake(function (cssUrl) {
             if (/^url/.test(cssUrl)) {
                 return cssUrl.replace(/^url\("?/, '').replace(/"?\)$/, '');
             } else {
                 throw "error";
             }
         });
-        joinUrlSpy = spyOn(rasterizeHTMLInline.util, "joinUrl");
-        ajaxSpy = spyOn(rasterizeHTMLInline.util, "ajax");
-        adjustPathsOfCssResourcesSpy = spyOn(rasterizeHTMLInline.css, 'adjustPathsOfCssResources');
-        loadCSSImportsForRulesSpy = spyOn(rasterizeHTMLInline.css, 'loadCSSImportsForRules').andCallFake(function (cssRules, alreadyLoadedCssUrls, options, callback) {
+        joinUrlSpy = spyOn(inlineUtil, "joinUrl");
+        ajaxSpy = spyOn(inlineUtil, "ajax");
+        adjustPathsOfCssResourcesSpy = spyOn(inlineCss, 'adjustPathsOfCssResources');
+        loadCSSImportsForRulesSpy = spyOn(inlineCss, 'loadCSSImportsForRules').andCallFake(function (cssRules, alreadyLoadedCssUrls, options, callback) {
             callback(false, []);
         });
-        loadAndInlineCSSResourcesForRulesSpy = spyOn(rasterizeHTMLInline.css, 'loadAndInlineCSSResourcesForRules').andCallFake(function (cssRules, options, callback) {
+        loadAndInlineCSSResourcesForRulesSpy = spyOn(inlineCss, 'loadAndInlineCSSResourcesForRules').andCallFake(function (cssRules, options, callback) {
             callback(false, []);
         });
 
@@ -159,7 +163,7 @@ describe("Inline CSS links", function () {
     });
 
     it("should respect the document's baseURI when loading linked CSS", function () {
-        var getDocumentBaseUrlSpy = spyOn(rasterizeHTMLInline.util, 'getDocumentBaseUrl').andCallThrough();
+        var getDocumentBaseUrlSpy = spyOn(inlineUtil, 'getDocumentBaseUrl').andCallThrough();
 
         mockAjaxWithSuccess("p { font-size: 14px; }");
 

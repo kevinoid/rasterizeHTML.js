@@ -1,3 +1,6 @@
+var rasterizeHTMLInline = require('../src/inline'),
+    inlineUtil = require('../src/inlineUtil');
+
 describe("Image and image input inline", function () {
     var firstImage = "firstImage.png",
         secondImage = "secondImage.png",
@@ -6,8 +9,8 @@ describe("Image and image input inline", function () {
         joinUrlSpy, getDataURIForImageURLSpy, doc;
 
     beforeEach(function () {
-        joinUrlSpy = spyOn(rasterizeHTMLInline.util, "joinUrl");
-        getDataURIForImageURLSpy = spyOn(rasterizeHTMLInline.util, "getDataURIForImageURL").andCallFake(function (url, options, successCallback) {
+        joinUrlSpy = spyOn(inlineUtil, "joinUrl");
+        getDataURIForImageURLSpy = spyOn(inlineUtil, "getDataURIForImageURL").andCallFake(function (url, options, successCallback) {
             if (url === firstImage) {
                 successCallback(firstImageDataURI);
             } else if (url === secondImage) {
@@ -94,7 +97,7 @@ describe("Image and image input inline", function () {
 
     it("should respect the document's baseURI when loading the image", function () {
         var callback = jasmine.createSpy("callback"),
-            getDocumentBaseUrlSpy = spyOn(rasterizeHTMLInline.util, 'getDocumentBaseUrl').andCallThrough();
+            getDocumentBaseUrlSpy = spyOn(inlineUtil, 'getDocumentBaseUrl').andCallThrough();
 
         doc = rasterizeHTMLTestHelper.readDocumentFixture("image.html");
 

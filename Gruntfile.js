@@ -4,11 +4,13 @@ module.exports = function (grunt) {
         pkg: grunt.file.readJSON('package.json'),
         jasmine: {
             src: [
-                'build/*.js',
-                'src/*.js'
+                'build/CSSOM.js',
+                'build/xmlserializer.js',
+                'build/url.js',
+                // 'build/rasterizeHTML.js'
             ],
             options: {
-                specs: 'test/*Spec.js',
+                specs: 'build/testBundle.js',
                 helpers: [
                     'test/helpers.js',
                     'bower_components/js-imagediff/imagediff.js',
@@ -39,6 +41,29 @@ module.exports = function (grunt) {
                 options: {
                     'standalone': 'url'
                 }
+            },
+            app: {
+                src: 'src/rasterizeHTML.js',
+                dest: 'build/rasterizeHTML.js',
+                options: {
+                    standalone: 'rasterizeHTML',
+                    external: ['cssom', 'xmlserializer', 'url']
+                }
+            },
+            allinone: {
+                src: 'src/rasterizeHTML.js',
+                dest: 'build/rasterizeHTML.allinone.js',
+                options: {
+                    standalone: 'rasterizeHTML'
+                }
+            },
+            specs: {
+                src: 'test/*Spec.js',
+                dest: 'build/testBundle.js',
+                options: {
+                    external: ['cssom', 'xmlserializer', 'url']
+                    // external: ['./src/*.js'] // TODO don't include source in test bundle
+                }
             }
         },
         clean: {
@@ -54,7 +79,7 @@ module.exports = function (grunt) {
                     ' Licensed <%= _.pluck(pkg.licenses, "type").join(", ") %> */\n'
             },
             dist: {
-                src: ['src/*.js'],
+                src: ['build/rasterizeHTML.js'],
                 dest: 'dist/<%= pkg.name %>'
             }
         },
@@ -83,10 +108,7 @@ module.exports = function (grunt) {
                         ' * xmlserializer (MIT License) */\n'
                 },
                 files: {
-                    'dist/rasterizeHTML.allinone.js': [
-                        'build/*.js',
-                        'dist/rasterizeHTML.js'
-                    ]
+                    'dist/rasterizeHTML.allinone.js': ['build/rasterizeHTML.allinone.js']
                 }
             }
         },
@@ -110,9 +132,10 @@ module.exports = function (grunt) {
                 eqnull: true,
                 trailing: true,
                 browser: true,
+                node: true, // Don't complain about a top level 'use strict'
                 globals: {
-                    CSSOM: true,
-                    url: true
+                    module: true,
+                    require: true
                 }
             },
             uses_defaults: [

@@ -1,3 +1,5 @@
+var rasterizeHTML = require('../src/rasterizeHTML');
+
 describe("The rendering process", function () {
     describe("on document to SVG conversion", function () {
         it("should return a SVG with embeded HTML", function () {

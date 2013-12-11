@@ -1,10 +1,12 @@
+var inlineUtil = require('../src/inlineUtil');
+
 describe("Inline utilities function", function () {
     describe("clone", function () {
         it("should create a copy of the given object", function () {
             var input = {anOption: '1', yetAnotherOption: '21'},
                 output;
 
-            output = rasterizeHTMLInline.util.clone(input);
+            output = inlineUtil.clone(input);
 
             expect(input).toEqual(output);
             expect(input).not.toBe(output);
@@ -16,7 +18,7 @@ describe("Inline utilities function", function () {
             var input = [1, 2, 3],
                 output;
 
-            output = rasterizeHTMLInline.util.cloneArray(input);
+            output = inlineUtil.cloneArray(input);
 
             expect(input).toEqual(output);
             expect(input).not.toBe(output);
@@ -33,7 +35,7 @@ describe("Inline utilities function", function () {
                 doc = rasterizeHTMLTestHelper.readDocumentFixture("image.html"),
                 url, nonQueryPart;
 
-            url = rasterizeHTMLInline.util.getDocumentBaseUrl(doc);
+            url = inlineUtil.getDocumentBaseUrl(doc);
             nonQueryPart = url.split('?')[0];
 
             expect(endsWith(nonQueryPart, fixturePath)).toBeTruthy();
@@ -43,7 +45,7 @@ describe("Inline utilities function", function () {
             var doc = document.implementation.createHTMLDocument(""),
                 url;
 
-            url = rasterizeHTMLInline.util.getDocumentBaseUrl(doc);
+            url = inlineUtil.getDocumentBaseUrl(doc);
 
             expect(url).toBe(null);
         });
@@ -51,58 +53,58 @@ describe("Inline utilities function", function () {
 
     describe("joinUrl", function () {
         it("should append the url to a directory-only base", function () {
-            var url = rasterizeHTMLInline.util.joinUrl("rel/path/", "the_relative_url");
+            var url = inlineUtil.joinUrl("rel/path/", "the_relative_url");
             expect(url).toEqual("rel/path/the_relative_url");
         });
 
         it("should append the url to a file base", function () {
-            var url = rasterizeHTMLInline.util.joinUrl("rel/path/something", "the_relative_url");
+            var url = inlineUtil.joinUrl("rel/path/something", "the_relative_url");
             expect(url).toEqual("rel/path/the_relative_url");
         });
 
         it("should merge ../ with a directory-only base", function () {
-            var url = rasterizeHTMLInline.util.joinUrl("rel/path/", "../the_relative_url");
+            var url = inlineUtil.joinUrl("rel/path/", "../the_relative_url");
             expect(url).toEqual("rel/the_relative_url");
         });
 
         it("should just return the url if absolute", function () {
-            var url = rasterizeHTMLInline.util.joinUrl("rel/path/", "/the_relative_url");
+            var url = inlineUtil.joinUrl("rel/path/", "/the_relative_url");
             expect(url).toEqual("/the_relative_url");
         });
 
         it("should combine a url starting with '/' with the host of the base", function () {
-            var url = rasterizeHTMLInline.util.joinUrl("http://example.com/rel/path/", "/the_relative_url");
+            var url = inlineUtil.joinUrl("http://example.com/rel/path/", "/the_relative_url");
             expect(url).toEqual("http://example.com/the_relative_url");
         });
 
         it("should ignore base with an absolute url", function () {
-            var url = rasterizeHTMLInline.util.joinUrl("http://example.com/rel/path/", "http://github.com//the_relative_url");
+            var url = inlineUtil.joinUrl("http://example.com/rel/path/", "http://github.com//the_relative_url");
             expect(url).toEqual("http://github.com//the_relative_url");
         });
 
         it("should ignore base without directories", function () {
-            var url = rasterizeHTMLInline.util.joinUrl("aFile", "anotherFile");
+            var url = inlineUtil.joinUrl("aFile", "anotherFile");
             expect(url).toEqual("anotherFile");
         });
 
         it("should ignore an undefined base", function () {
-            var url = rasterizeHTMLInline.util.joinUrl(undefined, "aFile");
+            var url = inlineUtil.joinUrl(undefined, "aFile");
             expect(url).toEqual("aFile");
         });
 
         it("should keep a relative base URL", function () {
-            var url = rasterizeHTMLInline.util.joinUrl("../rel/path/", "the_relative_url");
+            var url = inlineUtil.joinUrl("../rel/path/", "the_relative_url");
             expect(url).toEqual("../rel/path/the_relative_url");
         });
     });
 
     describe("isDataUri", function () {
         it("should report data URI", function () {
-            expect(rasterizeHTMLInline.util.isDataUri('data:image/png;base64,soMEfAkebASE64=')).toBeTruthy();
+            expect(inlineUtil.isDataUri('data:image/png;base64,soMEfAkebASE64=')).toBeTruthy();
         });
 
         it("should handle single quotes", function () {
-            expect(rasterizeHTMLInline.util.isDataUri('path/file.png')).toBeFalsy();
+            expect(inlineUtil.isDataUri('path/file.png')).toBeFalsy();
         });
     });
 
@@ -111,7 +113,7 @@ describe("Inline utilities function", function () {
             var completedValues = [],
                 completed = false;
 
-            rasterizeHTMLInline.util.map([1, 2, 3], function (val, callback) {
+            inlineUtil.map([1, 2, 3], function (val, callback) {
                 completedValues.push(val);
 
                 callback();
@@ -126,7 +128,7 @@ describe("Inline utilities function", function () {
         it("should pass computed results as array to complete function", function () {
             var computedResults = null;
 
-            rasterizeHTMLInline.util.map([1, 2, 3], function (val, callback) {
+            inlineUtil.map([1, 2, 3], function (val, callback) {
                 callback(val + 1);
             }, function (results) {
                 computedResults = results;
@@ -139,7 +141,7 @@ describe("Inline utilities function", function () {
             var computedResults = null,
                 late2ndCallback = null;
 
-            rasterizeHTMLInline.util.map([1, 2, 3], function (val, callback) {
+            inlineUtil.map([1, 2, 3], function (val, callback) {
 
                 if (val === 2) {
                     late2ndCallback = callback;
@@ -159,7 +161,7 @@ describe("Inline utilities function", function () {
             var completed = false,
                 computedResults = null;
 
-            rasterizeHTMLInline.util.map([], function () {}, function (results) {
+            inlineUtil.map([], function () {}, function (results) {
                 completed = true;
                 computedResults = results;
             });
@@ -173,7 +175,7 @@ describe("Inline utilities function", function () {
                 completed = false,
                 lastCallback = null;
 
-            rasterizeHTMLInline.util.map([1, 2, 3], function (val, callback) {
+            inlineUtil.map([1, 2, 3], function (val, callback) {
                 completedValues.push(val);
 
                 if (val < 3) {
@@ -196,7 +198,7 @@ describe("Inline utilities function", function () {
             var input = [1, 2, 3],
                 computedResults = null;
 
-            rasterizeHTMLInline.util.map(input, function (val, callback) {
+            inlineUtil.map(input, function (val, callback) {
 
                 if (val === 2) {
                     // Remove middle element
@@ -217,7 +219,7 @@ describe("Inline utilities function", function () {
             var finished = false,
                 loadedContent;
 
-            rasterizeHTMLInline.util.ajax(jasmine.getFixtures().fixturesPath + "some.css", {}, function (content) {
+            inlineUtil.ajax(jasmine.getFixtures().fixturesPath + "some.css", {}, function (content) {
                 loadedContent = content;
                 finished = true;
             }, function () {});
@@ -238,7 +240,7 @@ describe("Inline utilities function", function () {
                     finished = true;
                 });
 
-            rasterizeHTMLInline.util.ajax("non_existing_url.html", {}, successCallback, errorCallback);
+            inlineUtil.ajax("non_existing_url.html", {}, successCallback, errorCallback);
 
             waitsFor(function () {
                 return finished;
@@ -257,27 +259,27 @@ describe("Inline utilities function", function () {
                 ajaxRequest = jasmine.createSpyObj("ajaxRequest", ["open", "addEventListener", "overrideMimeType", "send"]);
                 spyOn(window, "XMLHttpRequest").andReturn(ajaxRequest);
 
-                spyOn(rasterizeHTMLInline.util, "joinUrl").andCallFake(function (baseUrl, url) {
+                spyOn(inlineUtil, "joinUrl").andCallFake(function (baseUrl, url) {
                     return baseUrl ? baseUrl + url : url;
                 });
             });
 
             it("should attach an unique parameter to the given URL to circumvent caching if requested", function () {
-                rasterizeHTMLInline.util.ajax("non_existing_url.html", {cache: 'none'}, function () {}, function () {});
+                inlineUtil.ajax("non_existing_url.html", {cache: 'none'}, function () {}, function () {});
 
                 expect(ajaxRequest.open).toHaveBeenCalledWith('GET', jasmine.any(String), true);
                 expect(ajaxRequest.open.mostRecentCall.args[1]).toMatch(/^non_existing_url.html\?_=[0123456789]+$/);
             });
 
             it("should attach an unique parameter to the given URL to circumvent caching if requested (legacy: 'false')", function () {
-                rasterizeHTMLInline.util.ajax("non_existing_url.html", {cache: false}, function () {}, function () {});
+                inlineUtil.ajax("non_existing_url.html", {cache: false}, function () {}, function () {});
 
                 expect(ajaxRequest.open).toHaveBeenCalledWith('GET', jasmine.any(String), true);
                 expect(ajaxRequest.open.mostRecentCall.args[1]).toMatch(/^non_existing_url.html\?_=[0123456789]+$/);
             });
 
             it("should not attach an unique parameter to the given URL by default", function () {
-                rasterizeHTMLInline.util.ajax("non_existing_url.html", {}, function () {}, function () {});
+                inlineUtil.ajax("non_existing_url.html", {}, function () {}, function () {});
 
                 expect(ajaxRequest.open).toHaveBeenCalledWith('GET', "non_existing_url.html", true);
             });
@@ -285,12 +287,12 @@ describe("Inline utilities function", function () {
             it("should allow caching for repeated calls if requested", function () {
                 var dateNowSpy = spyOn(window.Date, 'now').andReturn(42);
 
-                rasterizeHTMLInline.util.ajax("non_existing_url.html", {cache: 'none'}, function () {}, function () {});
+                inlineUtil.ajax("non_existing_url.html", {cache: 'none'}, function () {}, function () {});
 
                 expect(ajaxRequest.open.mostRecentCall.args[1]).toEqual('non_existing_url.html?_=42');
 
                 dateNowSpy.andReturn(43);
-                rasterizeHTMLInline.util.ajax("non_existing_url.html", {cache: 'repeated'}, function () {}, function () {});
+                inlineUtil.ajax("non_existing_url.html", {cache: 'repeated'}, function () {}, function () {});
                 expect(ajaxRequest.open.mostRecentCall.args[1]).toEqual('non_existing_url.html?_=42');
 
                 expect(dateNowSpy.callCount).toEqual(1);
@@ -298,27 +300,27 @@ describe("Inline utilities function", function () {
 
             it("should not cache repeated calls by default", function () {
                 var dateNowSpy = spyOn(window.Date, 'now').andReturn(42);
-                rasterizeHTMLInline.util.ajax("non_existing_url.html", {cache: 'none'}, function () {}, function () {});
+                inlineUtil.ajax("non_existing_url.html", {cache: 'none'}, function () {}, function () {});
 
                 expect(ajaxRequest.open.mostRecentCall.args[1]).toEqual('non_existing_url.html?_=42');
 
                 dateNowSpy.andReturn(43);
-                rasterizeHTMLInline.util.ajax("non_existing_url.html", {cache: 'none'}, function () {}, function () {});
+                inlineUtil.ajax("non_existing_url.html", {cache: 'none'}, function () {}, function () {});
                 expect(ajaxRequest.open.mostRecentCall.args[1]).toEqual('non_existing_url.html?_=43');
             });
 
             it("should force mime type if requested", function () {
-                rasterizeHTMLInline.util.ajax("non_existing_url.html", {mimeType: "42"}, function () {}, function () {});
+                inlineUtil.ajax("non_existing_url.html", {mimeType: "42"}, function () {}, function () {});
 
                 expect(ajaxRequest.overrideMimeType).toHaveBeenCalledWith('42');
             });
 
             it("should load URLs relative to baseUrl", function () {
-                rasterizeHTMLInline.util.ajax("relative/url.png", {baseUrl: "http://example.com/"}, function () {}, function () {});
+                inlineUtil.ajax("relative/url.png", {baseUrl: "http://example.com/"}, function () {}, function () {});
 
                 expect(ajaxRequest.open.mostRecentCall.args[1]).toEqual('http://example.com/relative/url.png');
 
-                expect(rasterizeHTMLInline.util.joinUrl).toHaveBeenCalledWith("http://example.com/", "relative/url.png");
+                expect(inlineUtil.joinUrl).toHaveBeenCalledWith("http://example.com/", "relative/url.png");
             });
         });
 
@@ -326,7 +328,7 @@ describe("Inline utilities function", function () {
 
     describe("binaryAjax", function () {
         beforeEach(function () {
-            spyOn(rasterizeHTMLInline.util, "joinUrl").andCallFake(function (baseUrl, url) {
+            spyOn(inlineUtil, "joinUrl").andCallFake(function (baseUrl, url) {
                 return url;
             });
         });
@@ -335,7 +337,7 @@ describe("Inline utilities function", function () {
             var finished = false,
                 loadedContent;
 
-            rasterizeHTMLInline.util.binaryAjax(jasmine.getFixtures().fixturesPath + "green.png", {}, function (content) {
+            inlineUtil.binaryAjax(jasmine.getFixtures().fixturesPath + "green.png", {}, function (content) {
                 loadedContent = content;
                 finished = true;
             }, function () {});
@@ -352,16 +354,16 @@ describe("Inline utilities function", function () {
         it("should handle error", function () {
             var errorCallback = jasmine.createSpy("errorCallback"),
                 successCallback = jasmine.createSpy("successCallback");
-            spyOn(rasterizeHTMLInline.util, "ajax").andCallFake(function (url, options, success, error) {
+            spyOn(inlineUtil, "ajax").andCallFake(function (url, options, success, error) {
                 error();
             });
-            rasterizeHTMLInline.util.binaryAjax("url", {}, successCallback, errorCallback);
+            inlineUtil.binaryAjax("url", {}, successCallback, errorCallback);
         });
 
         it("should circumvent caching if requested", function () {
-            var ajaxSpy = spyOn(rasterizeHTMLInline.util, "ajax");
+            var ajaxSpy = spyOn(inlineUtil, "ajax");
 
-            rasterizeHTMLInline.util.binaryAjax("url", {cache: 'none'}, function () {}, function () {});
+            inlineUtil.binaryAjax("url", {cache: 'none'}, function () {}, function () {});
 
             expect(ajaxSpy).toHaveBeenCalledWith("url", {
                 mimeType : jasmine.any(String),
@@ -370,9 +372,9 @@ describe("Inline utilities function", function () {
         });
 
         it("should cache by default", function () {
-            var ajaxSpy = spyOn(rasterizeHTMLInline.util, "ajax");
+            var ajaxSpy = spyOn(inlineUtil, "ajax");
 
-            rasterizeHTMLInline.util.binaryAjax("url", {}, function () {}, function () {});
+            inlineUtil.binaryAjax("url", {}, function () {}, function () {});
 
             expect(ajaxSpy).toHaveBeenCalledWith("url", {
                 mimeType : jasmine.any(String)
@@ -384,7 +386,7 @@ describe("Inline utilities function", function () {
         var binaryAjaxSpy;
 
         beforeEach(function () {
-            binaryAjaxSpy = spyOn(rasterizeHTMLInline.util, "binaryAjax");
+            binaryAjaxSpy = spyOn(inlineUtil, "binaryAjax");
         });
 
         it("should return an image as data: URI", function () {
@@ -396,7 +398,7 @@ describe("Inline utilities function", function () {
                 }
             });
 
-            rasterizeHTMLInline.util.getDataURIForImageURL("green.png", {}, function (dataURI) {
+            inlineUtil.getDataURIForImageURL("green.png", {}, function (dataURI) {
                 returnedDataURI = dataURI;
             }, function () {});
 
@@ -414,7 +416,7 @@ describe("Inline utilities function", function () {
                 }
             });
 
-            rasterizeHTMLInline.util.getDataURIForImageURL("green.svg", {}, function (dataURI) {
+            inlineUtil.getDataURIForImageURL("green.svg", {}, function (dataURI) {
                 returnedDataURI = dataURI;
             }, function () {});
 
@@ -431,7 +433,7 @@ describe("Inline utilities function", function () {
                 }
             });
 
-            rasterizeHTMLInline.util.getDataURIForImageURL("green.svg", {}, function (dataURI) {
+            inlineUtil.getDataURIForImageURL("green.svg", {}, function (dataURI) {
                 returnedDataURI = dataURI;
             }, function () {});
 
@@ -446,14 +448,14 @@ describe("Inline utilities function", function () {
                 errorCallback();
             });
 
-            rasterizeHTMLInline.util.getDataURIForImageURL("image_does_not_exist.png", {}, successCallback, errorCallback);
+            inlineUtil.getDataURIForImageURL("image_does_not_exist.png", {}, successCallback, errorCallback);
 
             expect(errorCallback).toHaveBeenCalled();
             expect(successCallback).not.toHaveBeenCalled();
         });
 
         it("should circumvent caching if requested", function () {
-            rasterizeHTMLInline.util.getDataURIForImageURL("image.png", {cache: 'none'}, function () {}, function () {});
+            inlineUtil.getDataURIForImageURL("image.png", {cache: 'none'}, function () {}, function () {});
 
             expect(binaryAjaxSpy).toHaveBeenCalledWith('image.png', {cache: 'none'}, jasmine.any(Function), jasmine.any(Function));
         });
@@ -476,7 +478,7 @@ describe("Inline utilities function", function () {
         });
 
         it("should call the memoized function for the first time", function () {
-            var memoized = rasterizeHTMLInline.util.memoize(func, hasher, memo);
+            var memoized = inlineUtil.memoize(func, hasher, memo);
 
             expect(func).not.toHaveBeenCalled();
             memoized('a parameter', 1, 'and a 3rd parameter', callback);
@@ -485,14 +487,14 @@ describe("Inline utilities function", function () {
         });
 
         it("should call the callback with the functions result", function () {
-            var memoized = rasterizeHTMLInline.util.memoize(func, hasher, memo);
+            var memoized = inlineUtil.memoize(func, hasher, memo);
 
             memoized('a parameter', 1, 'and a 3rd parameter', callback);
             expect(callback).toHaveBeenCalledWith(aResult, anotherResult);
         });
 
         it("should not call the memoized function for a second time with the same parameters", function () {
-            var memoized = rasterizeHTMLInline.util.memoize(func, hasher, memo);
+            var memoized = inlineUtil.memoize(func, hasher, memo);
 
             memoized('a parameter', 1, 'and a 3rd parameter', callback);
             func.reset();
@@ -502,7 +504,7 @@ describe("Inline utilities function", function () {
         });
 
         it("should call the callback with the functions results for the second time", function () {
-            var memoized = rasterizeHTMLInline.util.memoize(func, hasher, memo);
+            var memoized = inlineUtil.memoize(func, hasher, memo);
 
             memoized('a parameter', 1, 'and a 3rd parameter', callback);
             callback.reset();
@@ -511,7 +513,7 @@ describe("Inline utilities function", function () {
         });
 
         it("should call the memoized function again with different parameters", function () {
-            var memoized = rasterizeHTMLInline.util.memoize(func, hasher, memo);
+            var memoized = inlineUtil.memoize(func, hasher, memo);
 
             memoized('a parameter', 1, 'and a 3rd parameter', callback);
             func.reset();
@@ -525,8 +527,8 @@ describe("Inline utilities function", function () {
                     cllbck('yet another result');
                 }),
                 callback2 = jasmine.createSpy('callback2'),
-                memoized = rasterizeHTMLInline.util.memoize(func, hasher, memo),
-                memoized2 = rasterizeHTMLInline.util.memoize(func2, hasher, memo);
+                memoized = inlineUtil.memoize(func, hasher, memo),
+                memoized2 = inlineUtil.memoize(func2, hasher, memo);
 
             memoized('a parameter', 1, 'and a 3rd parameter', callback);
             memoized2('a parameter', 1, 'and a 3rd parameter', callback2);
@@ -536,8 +538,8 @@ describe("Inline utilities function", function () {
         });
 
         it("should memoize across the same memo objects", function () {
-            var memoized1 = rasterizeHTMLInline.util.memoize(func, hasher, memo),
-                memoized2 = rasterizeHTMLInline.util.memoize(func, hasher, memo);
+            var memoized1 = inlineUtil.memoize(func, hasher, memo),
+                memoized2 = inlineUtil.memoize(func, hasher, memo);
 
             memoized1('a parameter', 1, 'and a 3rd parameter', callback);
             func.reset();
@@ -547,8 +549,8 @@ describe("Inline utilities function", function () {
         });
 
         it("should not memoize across different memo objects", function () {
-            var memoized1 = rasterizeHTMLInline.util.memoize(func, hasher, memo),
-                memoized2 = rasterizeHTMLInline.util.memoize(func, hasher, {});
+            var memoized1 = inlineUtil.memoize(func, hasher, memo),
+                memoized2 = inlineUtil.memoize(func, hasher, {});
 
             memoized1('a parameter', 1, 'and a 3rd parameter', callback);
             func.reset();
@@ -559,7 +561,7 @@ describe("Inline utilities function", function () {
 
         it("should use hash function result when comparing parameter keys with disjunct values", function () {
             var hasher = JSON.stringify,
-                memoized = rasterizeHTMLInline.util.memoize(func, hasher, memo);
+                memoized = inlineUtil.memoize(func, hasher, memo);
 
             memoized({a: 1}, 1, 2, callback);
             func.reset();
@@ -569,7 +571,7 @@ describe("Inline utilities function", function () {
 
         it("should use hash function result when comparing parameter keys with same values", function () {
             var hasher = function (x) { return typeof x === 'object' ? {} : x; },
-                memoized = rasterizeHTMLInline.util.memoize(func, hasher, memo);
+                memoized = inlineUtil.memoize(func, hasher, memo);
 
             memoized({a: 1}, 1, 2, callback);
             func.reset();
@@ -579,7 +581,7 @@ describe("Inline utilities function", function () {
 
         it("should throw an error if the memo is not an object", function () {
             try {
-                rasterizeHTMLInline.util.memoize(func, hasher, 42);
+                inlineUtil.memoize(func, hasher, 42);
                 expect(true).toBe(false);
             } catch (e) {
                 expect(e.message).toEqual("cacheBucket is not an object");
@@ -597,7 +599,7 @@ describe("Inline utilities function", function () {
                 var func = jasmine.createSpy('func').andCallFake(function (_1, _2, successCallback) {
                         successCallback(aResult, anotherResult);
                     }),
-                    memoized = rasterizeHTMLInline.util.memoize(func, hasher, memo);
+                    memoized = inlineUtil.memoize(func, hasher, memo);
 
                 memoized('a parameter', 1, callback, errorCallback);
                 expect(func).toHaveBeenCalledWith('a parameter', 1, jasmine.any(Function), jasmine.any(Function));
@@ -609,7 +611,7 @@ describe("Inline utilities function", function () {
                 var func = jasmine.createSpy('func').andCallFake(function (_1, _2, successCallback) {
                         successCallback(aResult, anotherResult);
                     }),
-                    memoized = rasterizeHTMLInline.util.memoize(func, hasher, memo);
+                    memoized = inlineUtil.memoize(func, hasher, memo);
 
                 memoized('a parameter', 1, callback, errorCallback);
                 expect(func).toHaveBeenCalledWith('a parameter', 1, jasmine.any(Function), jasmine.any(Function));
@@ -623,7 +625,7 @@ describe("Inline utilities function", function () {
                 var func = jasmine.createSpy('func').andCallFake(function (_1, _2, successCallback, errorCallback) {
                         errorCallback(aResult, anotherResult);
                     }),
-                    memoized = rasterizeHTMLInline.util.memoize(func, hasher, memo);
+                    memoized = inlineUtil.memoize(func, hasher, memo);
 
                 memoized('a parameter', 1, callback, errorCallback);
                 expect(callback).not.toHaveBeenCalled();
@@ -634,7 +636,7 @@ describe("Inline utilities function", function () {
                 var func = jasmine.createSpy('func').andCallFake(function (_1, _2, successCallback, errorCallback) {
                         errorCallback(aResult, anotherResult);
                     }),
-                    memoized = rasterizeHTMLInline.util.memoize(func, hasher, memo);
+                    memoized = inlineUtil.memoize(func, hasher, memo);
 
                 memoized('a parameter', 1, callback, errorCallback);
                 expect(func).toHaveBeenCalled();
@@ -655,31 +657,31 @@ describe("Inline utilities function", function () {
         });
 
         it("should copy options", function () {
-            var params = rasterizeHTMLInline.util.parseOptionalParameters(options, callback);
+            var params = inlineUtil.parseOptionalParameters(options, callback);
             expect(params.options).toEqual(options);
             expect(params.options).not.toBe(options);
         });
 
         it("should return all parameters", function () {
-            var params = rasterizeHTMLInline.util.parseOptionalParameters(options, callback);
+            var params = inlineUtil.parseOptionalParameters(options, callback);
             expect(params.options).toEqual(options);
             expect(params.callback).toBe(callback);
         });
 
         it("should make options optional", function () {
-            var params = rasterizeHTMLInline.util.parseOptionalParameters(callback);
+            var params = inlineUtil.parseOptionalParameters(callback);
             expect(params.options).toEqual({});
             expect(params.callback).toBe(callback);
         });
 
         it("should make callback optional", function () {
-            var params = rasterizeHTMLInline.util.parseOptionalParameters(options);
+            var params = inlineUtil.parseOptionalParameters(options);
             expect(params.options).toEqual(options);
             expect(params.callback).toBe(null);
         });
 
         it("should work with empty parameter list", function () {
-            var params = rasterizeHTMLInline.util.parseOptionalParameters();
+            var params = inlineUtil.parseOptionalParameters();
             expect(params.options).toEqual({});
             expect(params.callback).toBe(null);
         });

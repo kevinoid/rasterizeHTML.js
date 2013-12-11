@@ -1,3 +1,6 @@
+var rasterizeHTML = require('../src/rasterizeHTML'),
+    rasterizeHTMLInline = require('../src/inline');
+
 describe("Integration test", function () {
     var canvas, finished, callback, referenceImg,
         width = 204,
