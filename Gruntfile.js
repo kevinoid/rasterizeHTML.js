@@ -115,7 +115,7 @@ module.exports = function (grunt) {
         watch: {
             files: [
                 'src/*.js',
-                'test/*Spec.js'
+                'test/*.js'
             ],
             tasks: ['jshint', 'browserify:specs', 'jasmine']
         },
@@ -160,12 +160,7 @@ module.exports = function (grunt) {
                         ifNotInWebkitIt: true,
                         ifNotInPhantomJsIt: true,
                         ifNotInPhantomJSAndNotLocalRunnerIt: true,
-                        CSSOM: true,
-                        url: true,
-                        imagediff: true,
-                        rasterizeHTML: true,
-                        rasterizeHTMLInline: true,
-                        rasterizeHTMLTestHelper: true
+                        imagediff: true
                     }
                 },
                 files: {

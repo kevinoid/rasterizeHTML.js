@@ -1,5 +1,6 @@
 var rasterizeHTMLInline = require('../src/inline'),
-    inlineUtil = require('../src/inlineUtil');
+    inlineUtil = require('../src/inlineUtil'),
+    testHelper = require('./testHelper');
 
 describe("JS inline", function () {
     var doc, joinUrlSpy, ajaxSpy, callback,
@@ -120,7 +121,7 @@ describe("JS inline", function () {
     it("should respect the document's baseURI when loading linked JS", function () {
         var getDocumentBaseUrlSpy = spyOn(inlineUtil, 'getDocumentBaseUrl').andCallThrough();
 
-        doc = rasterizeHTMLTestHelper.readDocumentFixture("externalJS.html");
+        doc = testHelper.readDocumentFixture("externalJS.html");
 
         rasterizeHTMLInline.loadAndInlineScript(doc, callback);
 
@@ -139,7 +140,7 @@ describe("JS inline", function () {
     });
 
     it("should favour explicit baseUrl over document.baseURI when loading linked JS", function () {
-        doc = rasterizeHTMLTestHelper.readDocumentFixture("externalJS.html");
+        doc = testHelper.readDocumentFixture("externalJS.html");
         expect(doc.baseURI).not.toBeNull();
         expect(doc.baseURI).not.toEqual("about:blank");
 

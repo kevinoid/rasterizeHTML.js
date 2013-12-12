@@ -1,6 +1,7 @@
 var rasterizeHTMLInline = require('../src/inline'),
     inlineCss = require('../src/inlineCss'),
-    inlineUtil = require('../src/inlineUtil');
+    inlineUtil = require('../src/inlineUtil'),
+    testHelper = require('./testHelper');
 
 describe("Import styles", function () {
     var doc, loadCSSImportsForRulesSpy, loadAndInlineCSSResourcesForRulesSpy, callback;
@@ -30,7 +31,7 @@ describe("Import styles", function () {
     });
 
     it("should not touch unrelated CSS", function () {
-        rasterizeHTMLTestHelper.addStyleToDocument(doc, "span { padding-left: 0; }");
+        testHelper.addStyleToDocument(doc, "span { padding-left: 0; }");
 
         loadCSSImportsForRulesSpy.andCallFake(function(rules, includedList, options, callback) {
             rules[0] = "fake rule";
@@ -49,7 +50,7 @@ describe("Import styles", function () {
     });
 
     it("should replace an import with the content of the given URL", function () {
-        rasterizeHTMLTestHelper.addStyleToDocument(doc, '@import url("that.css");');
+        testHelper.addStyleToDocument(doc, '@import url("that.css");');
 
         rasterizeHTMLInline.loadAndInlineStyles(doc, callback);
 
@@ -58,7 +59,7 @@ describe("Import styles", function () {
     });
 
     it("should inline css resources", function () {
-        rasterizeHTMLTestHelper.addStyleToDocument(doc, 'span { background-image: url("anImage.png"); }');
+        testHelper.addStyleToDocument(doc, 'span { background-image: url("anImage.png"); }');
 
         rasterizeHTMLInline.loadAndInlineStyles(doc, callback);
 
@@ -93,7 +94,7 @@ describe("Import styles", function () {
 
     it("should respect the document's baseURI", function () {
         var getDocumentBaseUrlSpy = spyOn(inlineUtil, 'getDocumentBaseUrl').andCallThrough();
-        doc = rasterizeHTMLTestHelper.readDocumentFixture("importCss.html");
+        doc = testHelper.readDocumentFixture("importCss.html");
 
         rasterizeHTMLInline.loadAndInlineStyles(doc, callback);
 
@@ -105,7 +106,7 @@ describe("Import styles", function () {
     it("should favour explicit baseUrl over document.baseURI", function () {
         var baseUrl = "aBaseURI";
 
-        doc = rasterizeHTMLTestHelper.readDocumentFixture("importCss.html");
+        doc = testHelper.readDocumentFixture("importCss.html");
 
         expect(doc.baseURI).not.toBeNull();
         expect(doc.baseURI).not.toEqual("about:blank");
@@ -118,7 +119,7 @@ describe("Import styles", function () {
     });
 
     it("should circumvent caching if requested", function () {
-        rasterizeHTMLTestHelper.addStyleToDocument(doc, '@import url("that.css");');
+        testHelper.addStyleToDocument(doc, '@import url("that.css");');
 
         rasterizeHTMLInline.loadAndInlineStyles(doc, {cache: 'none'}, callback);
 
@@ -129,7 +130,7 @@ describe("Import styles", function () {
     });
 
     it("should not circumvent caching by default", function () {
-        rasterizeHTMLTestHelper.addStyleToDocument(doc, '@import url("that.css");');
+        testHelper.addStyleToDocument(doc, '@import url("that.css");');
 
         rasterizeHTMLInline.loadAndInlineStyles(doc, callback);
 
@@ -150,7 +151,7 @@ describe("Import styles", function () {
 
         // first call
         doc = document.implementation.createHTMLDocument("");
-        rasterizeHTMLTestHelper.addStyleToDocument(doc, 'background-image { url(anImage.png); }');
+        testHelper.addStyleToDocument(doc, 'background-image { url(anImage.png); }');
 
         rasterizeHTMLInline.loadAndInlineStyles(doc, {cacheBucket: cacheBucket}, callback);
         expect(loadCSSImportsForRulesSpy).toHaveBeenCalled();
@@ -160,7 +161,7 @@ describe("Import styles", function () {
 
         // second call
         doc = document.implementation.createHTMLDocument("");
-        rasterizeHTMLTestHelper.addStyleToDocument(doc, 'background-image { url(anImage.png); }');
+        testHelper.addStyleToDocument(doc, 'background-image { url(anImage.png); }');
 
         rasterizeHTMLInline.loadAndInlineStyles(doc, {cacheBucket: cacheBucket}, callback);
 
@@ -181,7 +182,7 @@ describe("Import styles", function () {
 
         // first call
         doc = document.implementation.createHTMLDocument("");
-        rasterizeHTMLTestHelper.addStyleToDocument(doc, 'background-image { url(anImage.png); }');
+        testHelper.addStyleToDocument(doc, 'background-image { url(anImage.png); }');
 
         rasterizeHTMLInline.loadAndInlineStyles(doc, {cacheBucket: cacheBucket}, callback);
         expect(loadCSSImportsForRulesSpy).toHaveBeenCalled();
@@ -190,8 +191,8 @@ describe("Import styles", function () {
         loadAndInlineCSSResourcesForRulesSpy.reset();
 
         // second call
-        doc = rasterizeHTMLTestHelper.readDocumentFixture("image.html"); // use a document with different baseUrl
-        rasterizeHTMLTestHelper.addStyleToDocument(doc, 'background-image { url(anImage.png); }');
+        doc = testHelper.readDocumentFixture("image.html"); // use a document with different baseUrl
+        testHelper.addStyleToDocument(doc, 'background-image { url(anImage.png); }');
 
         rasterizeHTMLInline.loadAndInlineStyles(doc, {cacheBucket: cacheBucket}, callback);
 
@@ -204,7 +205,7 @@ describe("Import styles", function () {
 
         // first call
         doc = document.implementation.createHTMLDocument("");
-        rasterizeHTMLTestHelper.addStyleToDocument(doc, 'background-image { url(anImage.png); }');
+        testHelper.addStyleToDocument(doc, 'background-image { url(anImage.png); }');
 
         rasterizeHTMLInline.loadAndInlineStyles(doc, {cacheBucket: cacheBucket, cache: 'none'}, callback);
         expect(loadCSSImportsForRulesSpy).toHaveBeenCalled();
@@ -213,7 +214,7 @@ describe("Import styles", function () {
 
         // second call
         doc = document.implementation.createHTMLDocument("");
-        rasterizeHTMLTestHelper.addStyleToDocument(doc, 'background-image { url(anImage.png); }');
+        testHelper.addStyleToDocument(doc, 'background-image { url(anImage.png); }');
 
         rasterizeHTMLInline.loadAndInlineStyles(doc, {cacheBucket: cacheBucket, cache: 'none'}, callback);
 
@@ -230,7 +231,7 @@ describe("Import styles", function () {
                 callback(false, ['resource error']);
             });
 
-            rasterizeHTMLTestHelper.addStyleToDocument(doc, '@import url("that.css");');
+            testHelper.addStyleToDocument(doc, '@import url("that.css");');
 
             rasterizeHTMLInline.loadAndInlineStyles(doc, callback);
 
@@ -246,13 +247,13 @@ describe("Import styles", function () {
 
             // first call
             doc = document.implementation.createHTMLDocument("");
-            rasterizeHTMLTestHelper.addStyleToDocument(doc, '@import url("that.css");');
+            testHelper.addStyleToDocument(doc, '@import url("that.css");');
 
             rasterizeHTMLInline.loadAndInlineStyles(doc, {cacheBucket: cacheBucket}, function () {});
 
             // second call
             doc = document.implementation.createHTMLDocument("");
-            rasterizeHTMLTestHelper.addStyleToDocument(doc, '@import url("that.css");');
+            testHelper.addStyleToDocument(doc, '@import url("that.css");');
 
             rasterizeHTMLInline.loadAndInlineStyles(doc, {cacheBucket: cacheBucket}, callback);
 

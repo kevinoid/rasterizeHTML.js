@@ -1,6 +1,7 @@
 var rasterizeHTMLInline = require('../src/inline'),
     inlineCss = require('../src/inlineCss'),
-    inlineUtil = require('../src/inlineUtil');
+    inlineUtil = require('../src/inlineUtil'),
+    testHelper = require('./testHelper');
 
 describe("Inline CSS links", function () {
     var doc, anotherCssLink, cssLink, extractCssUrlSpy, joinUrlSpy, ajaxSpy,
@@ -167,7 +168,7 @@ describe("Inline CSS links", function () {
 
         mockAjaxWithSuccess("p { font-size: 14px; }");
 
-        doc = rasterizeHTMLTestHelper.readDocumentFixture("externalCSS.html");
+        doc = testHelper.readDocumentFixture("externalCSS.html");
 
         rasterizeHTMLInline.loadAndInlineCssLinks(doc, callback);
 
@@ -186,7 +187,7 @@ describe("Inline CSS links", function () {
     it("should respect optional baseUrl when loading linked CSS", function () {
         mockAjaxWithSuccess("p { font-size: 14px; }");
 
-        doc = rasterizeHTMLTestHelper.readDocumentFixtureWithoutBaseURI("externalCSS.html");
+        doc = testHelper.readDocumentFixtureWithoutBaseURI("externalCSS.html");
 
         rasterizeHTMLInline.loadAndInlineCssLinks(doc, {baseUrl: jasmine.getFixtures().fixturesPath}, callback);
 
@@ -202,7 +203,7 @@ describe("Inline CSS links", function () {
 
         mockAjaxWithSuccess("p { font-size: 14px; }");
 
-        doc = rasterizeHTMLTestHelper.readDocumentFixture("externalCSS.html");
+        doc = testHelper.readDocumentFixture("externalCSS.html");
         expect(doc.baseURI).not.toBeNull();
         expect(doc.baseURI).not.toEqual("about:blank");
         expect(doc.baseURI).not.toEqual(baseUrl);
@@ -297,7 +298,7 @@ describe("Inline CSS links", function () {
         joinUrlSpy.andCallThrough();
 
         // first call
-        doc = rasterizeHTMLTestHelper.readDocumentFixture("empty1.html");
+        doc = testHelper.readDocumentFixture("empty1.html");
         doc.getElementsByTagName("head")[0].appendChild(cssLink);
 
         rasterizeHTMLInline.loadAndInlineCssLinks(doc, {cacheBucket: cacheBucket}, callback);
@@ -307,7 +308,7 @@ describe("Inline CSS links", function () {
         loadAndInlineCSSResourcesForRulesSpy.reset();
 
         // second call
-        doc = rasterizeHTMLTestHelper.readDocumentFixture("empty2.html"); // use a document with different url, but same baseUrl
+        doc = testHelper.readDocumentFixture("empty2.html"); // use a document with different url, but same baseUrl
         doc.getElementsByTagName("head")[0].appendChild(cssLink);
 
         rasterizeHTMLInline.loadAndInlineCssLinks(doc, {cacheBucket: cacheBucket}, callback);

@@ -1,5 +1,6 @@
 var rasterizeHTML = require('../src/rasterizeHTML'),
-    inlineUtil = require('../src/inlineUtil');
+    inlineUtil = require('../src/inlineUtil'),
+    testHelper = require('./testHelper');
 
 describe("Utilities function", function () {
     // TODO tests for log and getConstantUniqueIdFor
@@ -122,7 +123,7 @@ describe("Utilities function", function () {
         ifNotInPhantomJsIt("should be able to load content via AJAX from the correct url", function () {
             var doc, result;
 
-            rasterizeHTMLTestHelper.readHTMLDocumentFixture('ajax.html', function (theDoc) {
+            testHelper.readHTMLDocumentFixture('ajax.html', function (theDoc) {
                 doc = theDoc;
             });
 

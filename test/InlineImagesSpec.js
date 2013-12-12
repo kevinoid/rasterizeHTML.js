@@ -1,5 +1,6 @@
 var rasterizeHTMLInline = require('../src/inline'),
-    inlineUtil = require('../src/inlineUtil');
+    inlineUtil = require('../src/inlineUtil'),
+    testHelper = require('./testHelper');
 
 describe("Image and image input inline", function () {
     var firstImage = "firstImage.png",
@@ -99,7 +100,7 @@ describe("Image and image input inline", function () {
         var callback = jasmine.createSpy("callback"),
             getDocumentBaseUrlSpy = spyOn(inlineUtil, 'getDocumentBaseUrl').andCallThrough();
 
-        doc = rasterizeHTMLTestHelper.readDocumentFixture("image.html");
+        doc = testHelper.readDocumentFixture("image.html");
 
         rasterizeHTMLInline.loadAndInlineImages(doc, callback);
 
@@ -112,7 +113,7 @@ describe("Image and image input inline", function () {
     it("should respect optional baseUrl when loading the image", function () {
         var callback = jasmine.createSpy("callback");
 
-        doc = rasterizeHTMLTestHelper.readDocumentFixtureWithoutBaseURI("image.html");
+        doc = testHelper.readDocumentFixtureWithoutBaseURI("image.html");
 
         rasterizeHTMLInline.loadAndInlineImages(doc, {baseUrl: "aBaseUrl"}, callback);
 
@@ -125,7 +126,7 @@ describe("Image and image input inline", function () {
         var callback = jasmine.createSpy("callback"),
             baseUrl = "aBaseUrl";
 
-        doc = rasterizeHTMLTestHelper.readDocumentFixture("image.html");
+        doc = testHelper.readDocumentFixture("image.html");
         expect(doc.baseURI).not.toBeNull();
         expect(doc.baseURI).not.toEqual("about:blank");
         expect(doc.baseURI).not.toEqual(baseUrl);

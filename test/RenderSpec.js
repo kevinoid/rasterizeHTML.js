@@ -1,4 +1,5 @@
-var rasterizeHTML = require('../src/rasterizeHTML');
+var rasterizeHTML = require('../src/rasterizeHTML'),
+    testHelper = require('./testHelper');
 
 describe("The rendering process", function () {
     describe("on document to SVG conversion", function () {
@@ -91,7 +92,7 @@ describe("The rendering process", function () {
                     svgCode;
 
                 myUserAgent = "WebKit";
-                rasterizeHTMLTestHelper.addStyleToDocument(doc, 'span { background-image: url("data:image/png;base64,soMEfAkebASE64="); }');
+                testHelper.addStyleToDocument(doc, 'span { background-image: url("data:image/png;base64,soMEfAkebASE64="); }');
 
                 svgCode = rasterizeHTML.getSvgForDocument(doc, 123, 987);
 
@@ -103,7 +104,7 @@ describe("The rendering process", function () {
                     svgCode;
 
                 myUserAgent = "Something else";
-                rasterizeHTMLTestHelper.addStyleToDocument(doc, 'span { background-image: url("data:image/png;base64,soMEfAkebASE64="); }');
+                testHelper.addStyleToDocument(doc, 'span { background-image: url("data:image/png;base64,soMEfAkebASE64="); }');
 
                 svgCode = rasterizeHTML.getSvgForDocument(doc, 123, 987);
 

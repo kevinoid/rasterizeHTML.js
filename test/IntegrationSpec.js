@@ -1,5 +1,6 @@
 var rasterizeHTML = require('../src/rasterizeHTML'),
-    rasterizeHTMLInline = require('../src/inline');
+    rasterizeHTMLInline = require('../src/inline'),
+    diffHelper = require('./diffHelper');
 
 describe("Integration test", function () {
     var canvas, finished, callback, referenceImg,
@@ -26,7 +27,7 @@ describe("Integration test", function () {
 
     beforeEach(function () {
         this.addMatchers(imagediff.jasmine);
-        this.addMatchers(rasterizeHTMLTestHelper.matcher);
+        this.addMatchers(diffHelper.matcher);
 
         canvas = $('<canvas width="' + width + '" height="' + height + '"></canvas>'); // Firefox adds a space between the divs and needs the canvas to fit horizontally for all content to be rendered
 

@@ -1,4 +1,5 @@
-var inlineUtil = require('../src/inlineUtil');
+var inlineUtil = require('../src/inlineUtil'),
+    testHelper = require('./testHelper');
 
 describe("Inline utilities function", function () {
     describe("clone", function () {
@@ -32,7 +33,7 @@ describe("Inline utilities function", function () {
 
         it("should return a document's base url", function () {
             var fixturePath = jasmine.getFixtures().fixturesPath + "image.html",
-                doc = rasterizeHTMLTestHelper.readDocumentFixture("image.html"),
+                doc = testHelper.readDocumentFixture("image.html"),
                 url, nonQueryPart;
 
             url = inlineUtil.getDocumentBaseUrl(doc);
