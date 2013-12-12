@@ -117,7 +117,7 @@ module.exports = function (grunt) {
                 'src/*.js',
                 'test/*Spec.js'
             ],
-            tasks: ['jshint', 'jasmine']
+            tasks: ['jshint', 'browserify:specs', 'jasmine']
         },
         jshint: {
             options: {
