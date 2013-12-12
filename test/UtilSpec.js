@@ -712,7 +712,7 @@ describe("Utilities function", function () {
                 expect(ajaxRequest.open.mostRecentCall.args[1]).toEqual('non_existing_url.html?_=42');
 
                 dateNowSpy.andReturn(43);
-                inlineUtil.ajax("non_existing_url.html", {cache: 'none'}, function () {}, function () {});
+                util.loadDocument("non_existing_url.html", {cache: 'none'}, function () {}, function () {});
                 expect(ajaxRequest.open.mostRecentCall.args[1]).toEqual('non_existing_url.html?_=43');
             });
 
