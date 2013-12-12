@@ -1,4 +1,5 @@
 var rasterizeHTML = require('../src/rasterizeHTML'),
+    render = require('../src/render'),
     util = require('../src/util'),
     rasterizeHTMLInline = require('../src/inline');
 
@@ -10,12 +11,12 @@ describe("Main interface of rasterizeHTML.js", function () {
         inlineReferences, drawImageOnCanvas;
 
     var setUpDrawDocumentImage = function (image) {
-            rasterizeHTML.drawDocumentImage.andCallFake(function (doc, canvas, options, successCallback) {
+            render.drawDocumentImage.andCallFake(function (doc, canvas, options, successCallback) {
                 successCallback(image);
             });
         },
         setUpDrawDocumentImageError = function () {
-            rasterizeHTML.drawDocumentImage.andCallFake(function (doc, canvas, options, successCallback, errorCallback) {
+            render.drawDocumentImage.andCallFake(function (doc, canvas, options, successCallback, errorCallback) {
                 errorCallback();
             });
         };
@@ -31,7 +32,7 @@ describe("Main interface of rasterizeHTML.js", function () {
 
         parseOptionalParametersSpy = spyOn(util, "parseOptionalParameters").andCallThrough();
 
-        spyOn(rasterizeHTML, 'drawDocumentImage');
+        spyOn(render, 'drawDocumentImage');
     });
 
     describe("Rendering", function () {
@@ -41,7 +42,7 @@ describe("Main interface of rasterizeHTML.js", function () {
             callback = jasmine.createSpy("drawCallback");
 
             inlineReferences = spyOn(rasterizeHTMLInline, "inlineReferences").andCallFake(callbackCaller);
-            drawImageOnCanvas = spyOn(rasterizeHTML, "drawImageOnCanvas").andReturn(true);
+            drawImageOnCanvas = spyOn(render, "drawImageOnCanvas").andReturn(true);
 
             spyOn(util, 'persistInputValues');
 
@@ -54,7 +55,7 @@ describe("Main interface of rasterizeHTML.js", function () {
             rasterizeHTML.drawDocument(doc, canvas, callback);
 
             expect(inlineReferences).toHaveBeenCalledWith(doc, {inlineScripts: false}, jasmine.any(Function));
-            expect(rasterizeHTML.drawDocumentImage).toHaveBeenCalledWith(doc, canvas, {}, jasmine.any(Function), jasmine.any(Function));
+            expect(render.drawDocumentImage).toHaveBeenCalledWith(doc, canvas, {}, jasmine.any(Function), jasmine.any(Function));
             expect(drawImageOnCanvas).toHaveBeenCalledWith(svgImage, canvas);
 
             expect(callback).toHaveBeenCalledWith(svgImage, []);
@@ -67,7 +68,7 @@ describe("Main interface of rasterizeHTML.js", function () {
             rasterizeHTML.drawDocument(doc, callback);
 
             expect(inlineReferences).toHaveBeenCalledWith(doc, {inlineScripts : false}, jasmine.any(Function));
-            expect(rasterizeHTML.drawDocumentImage).toHaveBeenCalledWith(doc, null, {}, jasmine.any(Function), jasmine.any(Function));
+            expect(render.drawDocumentImage).toHaveBeenCalledWith(doc, null, {}, jasmine.any(Function), jasmine.any(Function));
             expect(drawImageOnCanvas).not.toHaveBeenCalled();
 
             expect(callback).toHaveBeenCalledWith(svgImage, []);
@@ -250,7 +251,7 @@ describe("Main interface of rasterizeHTML.js", function () {
         beforeEach(function () {
             callback = jasmine.createSpy("drawCallback");
 
-            drawImageOnCanvas = spyOn(rasterizeHTML, "drawImageOnCanvas").andReturn(true);
+            drawImageOnCanvas = spyOn(render, "drawImageOnCanvas").andReturn(true);
         });
 
         it("should pass through an error from inlining on drawDocument", function () {
@@ -333,7 +334,7 @@ describe("Main interface of rasterizeHTML.js", function () {
 
             inlineReferences = spyOn(rasterizeHTMLInline, "inlineReferences").andCallFake(callbackCaller);
 
-            drawImageOnCanvas = spyOn(rasterizeHTML, "drawImageOnCanvas");
+            drawImageOnCanvas = spyOn(render, "drawImageOnCanvas");
 
             executeJavascript = spyOn(util, "executeJavascript");
             spyOn(util, 'persistInputValues');
