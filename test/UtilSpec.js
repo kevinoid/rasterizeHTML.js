@@ -1,4 +1,4 @@
-var rasterizeHTML = require('../src/rasterizeHTML'),
+var util = require('../src/util'),
     inlineUtil = require('../src/inlineUtil'),
     testHelper = require('./testHelper');
 
@@ -16,7 +16,7 @@ describe("Utilities function", function () {
             var the_result = null;
 
             doc.documentElement.innerHTML = "<body><script>document.body.innerHTML = 'dynamic content';</script></body>";
-            rasterizeHTML.util.executeJavascript(doc, undefined, 0, function (result) {
+            util.executeJavascript(doc, undefined, 0, function (result) {
                 the_result = result;
             });
 
@@ -33,7 +33,7 @@ describe("Utilities function", function () {
             var finished = false;
 
             doc.documentElement.innerHTML = "<body></body>";
-            rasterizeHTML.util.executeJavascript(doc, undefined, 0, function () {
+            util.executeJavascript(doc, undefined, 0, function () {
                 finished = true;
             });
 
@@ -50,7 +50,7 @@ describe("Utilities function", function () {
             var the_result = null;
 
             doc.documentElement.innerHTML = "<body onload=\"setTimeout(function () {document.body.innerHTML = 'dynamic content';}, 1);\"></body>";
-            rasterizeHTML.util.executeJavascript(doc, undefined, 20, function (result) {
+            util.executeJavascript(doc, undefined, 20, function (result) {
                 the_result = result;
             });
 
@@ -67,7 +67,7 @@ describe("Utilities function", function () {
             var the_result = null;
 
             doc.documentElement.innerHTML = '<head><style>div { height: 20px; }</style></head><body onload="var elem = document.getElementById(\'elem\'); document.body.innerHTML = elem.offsetHeight;"><div id="elem"></div></body>';
-            rasterizeHTML.util.executeJavascript(doc, undefined, 0, function (result) {
+            util.executeJavascript(doc, undefined, 0, function (result) {
                 the_result = result;
             });
 
@@ -84,7 +84,7 @@ describe("Utilities function", function () {
             var errors = null;
 
             doc.documentElement.innerHTML = "<body><script>undefinedVar.t = 42</script></body>";
-            rasterizeHTML.util.executeJavascript(doc, undefined, 0, function (result, theErrors) {
+            util.executeJavascript(doc, undefined, 0, function (result, theErrors) {
                 errors = theErrors;
             });
 
@@ -107,7 +107,7 @@ describe("Utilities function", function () {
             doc.documentElement.innerHTML = '<head></head><body onload="document.body.innerHTML = document.querySelectorAll(\'[myattr]\').length;"></body>';
             doc.documentElement.setAttribute('myattr', 'myvalue');
 
-            rasterizeHTML.util.executeJavascript(doc, undefined, 0, function (result) {
+            util.executeJavascript(doc, undefined, 0, function (result) {
                 the_result = result;
             });
 
@@ -132,7 +132,7 @@ describe("Utilities function", function () {
             });
 
             runs(function () {
-                rasterizeHTML.util.executeJavascript(doc, jasmine.getFixtures().fixturesPath, 100, function (theResult) {
+                util.executeJavascript(doc, jasmine.getFixtures().fixturesPath, 100, function (theResult) {
                     result = theResult;
                 });
             });
@@ -155,13 +155,13 @@ describe("Utilities function", function () {
         });
 
         it("should parse HTML to a document", function () {
-            var dom = rasterizeHTML.util.parseHTML('<html><body>Text</body></html>');
+            var dom = util.parseHTML('<html><body>Text</body></html>');
 
             expect(dom.querySelector("body").textContent).toEqual("Text");
         });
 
         it("should keep 'html' tag attributes", function () {
-            var dom = rasterizeHTML.util.parseHTML('<html top="attribute"></html>');
+            var dom = util.parseHTML('<html top="attribute"></html>');
 
             expect(dom.documentElement.getAttribute('top')).toEqual('attribute');
         });
@@ -175,13 +175,13 @@ describe("Utilities function", function () {
                 };
             };
 
-            dom = rasterizeHTML.util.parseHTML('<html top="attribute"></html>');
+            dom = util.parseHTML('<html top="attribute"></html>');
 
             expect(dom.documentElement.getAttribute('top')).toEqual('attribute');
         });
 
         it("should deal with a missing 'html' tag", function () {
-            rasterizeHTML.util.parseHTML('<div></div>');
+            util.parseHTML('<div></div>');
         });
     });
 
@@ -200,7 +200,7 @@ describe("Utilities function", function () {
 
             doc.querySelector('input').value = 'my value';
 
-            rasterizeHTML.util.persistInputValues(doc);
+            util.persistInputValues(doc);
 
             expect(doc.querySelector('input').outerHTML).toMatch(/value="my value"/);
         });
@@ -209,7 +209,7 @@ describe("Utilities function", function () {
             setHtml('<input type="text" value="original value">');
             doc.querySelector('input').value = '';
 
-            rasterizeHTML.util.persistInputValues(doc);
+            util.persistInputValues(doc);
 
             expect(doc.querySelector('input').outerHTML).toMatch(/value=""/);
         });
@@ -217,7 +217,7 @@ describe("Utilities function", function () {
         it("should keep a text input value if not changed", function () {
             setHtml('<input type="text" value="original value">');
 
-            rasterizeHTML.util.persistInputValues(doc);
+            util.persistInputValues(doc);
 
             expect(doc.querySelector('input').outerHTML).toMatch(/value="original value"/);
         });
@@ -227,7 +227,7 @@ describe("Utilities function", function () {
 
             doc.querySelector('input').checked = true;
 
-            rasterizeHTML.util.persistInputValues(doc);
+            util.persistInputValues(doc);
 
             expect(doc.querySelector('input').outerHTML).toMatch(/checked="(checked)?"/);
         });
@@ -237,7 +237,7 @@ describe("Utilities function", function () {
 
             doc.querySelector('input').checked = false;
 
-            rasterizeHTML.util.persistInputValues(doc);
+            util.persistInputValues(doc);
 
             expect(doc.querySelector('input').outerHTML).not.toMatch(/checked/);
         });
@@ -247,7 +247,7 @@ describe("Utilities function", function () {
 
             doc.querySelector('input').checked = true;
 
-            rasterizeHTML.util.persistInputValues(doc);
+            util.persistInputValues(doc);
 
             expect(doc.querySelector('input').outerHTML).toMatch(/checked="(checked)?"/);
         });
@@ -257,7 +257,7 @@ describe("Utilities function", function () {
 
             doc.querySelector('textarea').value = "Some new value";
 
-            rasterizeHTML.util.persistInputValues(doc);
+            util.persistInputValues(doc);
 
             expect(doc.querySelector('textarea').outerHTML).toMatch(/<textarea>Some new value<\/textarea>/);
         });
@@ -265,7 +265,7 @@ describe("Utilities function", function () {
         it("should handle a file input", function () {
             setHtml('<input type="file">');
 
-            rasterizeHTML.util.persistInputValues(doc);
+            util.persistInputValues(doc);
 
             expect(doc.querySelector('input').outerHTML).toMatch(/type="file"/);
         });
@@ -284,7 +284,7 @@ describe("Utilities function", function () {
         it("should rewrite CSS rules with the new selector", function () {
             setHtml('<head><style type="text/css">a:hover { color: blue; }</style></head><body><span></span></body>');
 
-            rasterizeHTML.util.rewriteStyleRuleSelector(doc, ':hover', '.myFakeHover');
+            util.rewriteStyleRuleSelector(doc, ':hover', '.myFakeHover');
 
             expect(doc.querySelector('style').textContent).toMatch(/a.myFakeHover \{\s*color: blue;\s*\}/);
         });
@@ -292,7 +292,7 @@ describe("Utilities function", function () {
         it("should correctly handle complex selectors", function () {
             setHtml('<style type="text/css">body:hover span { color: blue; }</style>');
 
-            rasterizeHTML.util.rewriteStyleRuleSelector(doc, ':hover', '.myFakeHover');
+            util.rewriteStyleRuleSelector(doc, ':hover', '.myFakeHover');
 
             expect(doc.querySelector('style').textContent).toMatch(/body.myFakeHover span \{\s*color: blue;\s*\}/);
         });
@@ -300,7 +300,7 @@ describe("Utilities function", function () {
         it("should correctly handle simple selector occurrence", function () {
             setHtml('<style type="text/css">:hover { color: blue; }</style>');
 
-            rasterizeHTML.util.rewriteStyleRuleSelector(doc, ':hover', '.myFakeHover');
+            util.rewriteStyleRuleSelector(doc, ':hover', '.myFakeHover');
 
             expect(doc.querySelector('style').textContent).toMatch(/.myFakeHover \{\s*color: blue;\s*\}/);
         });
@@ -308,7 +308,7 @@ describe("Utilities function", function () {
         it("should not match partial selector occurrence", function () {
             setHtml('<style type="text/css">.myClass { color: blue; }</style>');
 
-            rasterizeHTML.util.rewriteStyleRuleSelector(doc, '.my', '.myFakeHover');
+            util.rewriteStyleRuleSelector(doc, '.my', '.myFakeHover');
 
             expect(doc.querySelector('style').textContent).toMatch(/.myClass \{\s*color: blue;\s*\}/);
         });
@@ -316,7 +316,7 @@ describe("Utilities function", function () {
         it("should correctly handle multiple selector occurrence in same rule selector", function () {
             setHtml('<style type="text/css">i:hover, a:hover { color: blue; }</style>');
 
-            rasterizeHTML.util.rewriteStyleRuleSelector(doc, ':hover', '.myFakeHover');
+            util.rewriteStyleRuleSelector(doc, ':hover', '.myFakeHover');
 
             expect(doc.querySelector('style').textContent).toMatch(/i.myFakeHover, a.myFakeHover \{\s*color: blue;\s*\}/);
         });
@@ -324,13 +324,13 @@ describe("Utilities function", function () {
         it("should cope with non CSSStyleRule", function () {
             setHtml('<head><style type="text/css">@font-face { font-family: "RaphaelIcons"; src: url("raphaelicons-webfont.woff"); }</style></head><body><span></span></body>');
 
-            rasterizeHTML.util.rewriteStyleRuleSelector(doc, ':hover', '.myFakeHover');
+            util.rewriteStyleRuleSelector(doc, ':hover', '.myFakeHover');
         });
 
         it("should not touch style elements without a matching selector", function () {
             setHtml('<style type="text/css">a { color: blue; }/* a comment*/</style>');
 
-            rasterizeHTML.util.rewriteStyleRuleSelector(doc, ':hover', '.myFakeHover');
+            util.rewriteStyleRuleSelector(doc, ':hover', '.myFakeHover');
 
             // Use the fact that comments are discarded when processing a style sheet
             expect(doc.querySelector('style').textContent).toMatch(/a comment/);
@@ -350,7 +350,7 @@ describe("Utilities function", function () {
         it("should attach class to selected element", function () {
             setHtml("<span>a span</span>");
 
-            rasterizeHTML.util.addClassNameRecursively(doc.querySelector('span'), '.myClass');
+            util.addClassNameRecursively(doc.querySelector('span'), '.myClass');
 
             expect(doc.querySelector('span').className).toMatch(/myClass/);
         });
@@ -358,7 +358,7 @@ describe("Utilities function", function () {
         it("should attach the fake hover class to select the parent's elements", function () {
             setHtml("<div><ol><li>a list entry</li></ol></div>");
 
-            rasterizeHTML.util.addClassNameRecursively(doc.querySelector('li'), '.myClass');
+            util.addClassNameRecursively(doc.querySelector('li'), '.myClass');
 
             expect(doc.querySelector('ol').className).toMatch(/myClass/);
             expect(doc.querySelector('div').className).toMatch(/myClass/);
@@ -369,7 +369,7 @@ describe("Utilities function", function () {
         it("should not attach the fake hover class to siblings or parent's siblings", function () {
             setHtml("<div><span>a span</span><div><a>a list entry</a><i>text</i></div></div>");
 
-            rasterizeHTML.util.addClassNameRecursively(doc.querySelector('a'), '.myClass');
+            util.addClassNameRecursively(doc.querySelector('a'), '.myClass');
 
             expect(doc.querySelector('i').className).toEqual('');
             expect(doc.querySelector('span').className).toEqual('');
@@ -385,20 +385,20 @@ describe("Utilities function", function () {
         beforeEach(function () {
             doc = document.implementation.createHTMLDocument('');
 
-            spyOn(rasterizeHTML.util, 'addClassNameRecursively');
-            spyOn(rasterizeHTML.util, 'rewriteStyleRuleSelector');
+            spyOn(util, 'addClassNameRecursively');
+            spyOn(util, 'rewriteStyleRuleSelector');
         });
 
         it("should add a fake class to the selected element and adapt the document's stylesheet", function () {
             setHtml("<span>a span</span>");
-            rasterizeHTML.util.fakeHover(doc, 'span');
+            util.fakeHover(doc, 'span');
 
-            expect(rasterizeHTML.util.addClassNameRecursively).toHaveBeenCalledWith(doc.querySelector('span'), 'rasterizehtmlhover');
-            expect(rasterizeHTML.util.rewriteStyleRuleSelector).toHaveBeenCalledWith(doc, ':hover', '.rasterizehtmlhover');
+            expect(util.addClassNameRecursively).toHaveBeenCalledWith(doc.querySelector('span'), 'rasterizehtmlhover');
+            expect(util.rewriteStyleRuleSelector).toHaveBeenCalledWith(doc, ':hover', '.rasterizehtmlhover');
         });
 
         it("should ignore non-existent selector", function () {
-            rasterizeHTML.util.fakeHover(doc, 'div');
+            util.fakeHover(doc, 'div');
         });
     });
 
@@ -411,20 +411,20 @@ describe("Utilities function", function () {
         beforeEach(function () {
             doc = document.implementation.createHTMLDocument('');
 
-            spyOn(rasterizeHTML.util, 'addClassNameRecursively');
-            spyOn(rasterizeHTML.util, 'rewriteStyleRuleSelector');
+            spyOn(util, 'addClassNameRecursively');
+            spyOn(util, 'rewriteStyleRuleSelector');
         });
 
         it("should add a fake class to the selected element and adapt the document's stylesheet", function () {
             setHtml("<span>a span</span>");
-            rasterizeHTML.util.fakeActive(doc, 'span');
+            util.fakeActive(doc, 'span');
 
-            expect(rasterizeHTML.util.addClassNameRecursively).toHaveBeenCalledWith(doc.querySelector('span'), 'rasterizehtmlactive');
-            expect(rasterizeHTML.util.rewriteStyleRuleSelector).toHaveBeenCalledWith(doc, ':active', '.rasterizehtmlactive');
+            expect(util.addClassNameRecursively).toHaveBeenCalledWith(doc.querySelector('span'), 'rasterizehtmlactive');
+            expect(util.rewriteStyleRuleSelector).toHaveBeenCalledWith(doc, ':active', '.rasterizehtmlactive');
         });
 
         it("should ignore non-existent selector", function () {
-            rasterizeHTML.util.fakeActive(doc, 'div');
+            util.fakeActive(doc, 'div');
         });
     });
 
@@ -443,7 +443,7 @@ describe("Utilities function", function () {
 
             setHtml('<div style="height: 300px;"></div>');
 
-            rasterizeHTML.util.calculateDocumentContentSize(doc, 300, 200, function (theWidth, theHeight) {
+            util.calculateDocumentContentSize(doc, 300, 200, function (theWidth, theHeight) {
                 height = theHeight;
             });
 
@@ -461,7 +461,7 @@ describe("Utilities function", function () {
 
             setHtml('<div style="height: 100px;"></div>');
 
-            rasterizeHTML.util.calculateDocumentContentSize(doc, 300, 200, function (theWidth, theHeight) {
+            util.calculateDocumentContentSize(doc, 300, 200, function (theWidth, theHeight) {
                 height = theHeight;
             });
 
@@ -479,7 +479,7 @@ describe("Utilities function", function () {
 
             setHtml('<div>The content</div>');
 
-            rasterizeHTML.util.calculateDocumentContentSize(doc, 300, 200, function (theWidth) {
+            util.calculateDocumentContentSize(doc, 300, 200, function (theWidth) {
                 width = theWidth;
             });
 
@@ -497,7 +497,7 @@ describe("Utilities function", function () {
 
             setHtml('<div style="width: 400px; height: 10px;"></div>');
 
-            rasterizeHTML.util.calculateDocumentContentSize(doc, 300, 200, function (theWidth) {
+            util.calculateDocumentContentSize(doc, 300, 200, function (theWidth) {
                 width = theWidth;
             });
 
@@ -515,7 +515,7 @@ describe("Utilities function", function () {
 
             setHtml('<div>The content</div>');
 
-            rasterizeHTML.util.calculateDocumentContentSize(doc, 300, 200, function (theWidth) {
+            util.calculateDocumentContentSize(doc, 300, 200, function (theWidth) {
                 width = theWidth;
             });
 
@@ -533,7 +533,7 @@ describe("Utilities function", function () {
 
             setHtml('<div></div><script>document.querySelector("div").style.height="100";</script>');
 
-            rasterizeHTML.util.calculateDocumentContentSize(doc, 300, 10, function (theWidth, theHeight) {
+            util.calculateDocumentContentSize(doc, 300, 10, function (theWidth, theHeight) {
                 height = theHeight;
             });
 
@@ -557,69 +557,69 @@ describe("Utilities function", function () {
         });
 
         it("should copy options", function () {
-            var params = rasterizeHTML.util.parseOptionalParameters([canvas, options, callback]);
+            var params = util.parseOptionalParameters([canvas, options, callback]);
             expect(params.options).toEqual(options);
             expect(params.options).not.toBe(options);
         });
 
         it("should return all parameters", function () {
-            var params = rasterizeHTML.util.parseOptionalParameters([canvas, options, callback]);
+            var params = util.parseOptionalParameters([canvas, options, callback]);
             expect(params.canvas).toBe(canvas);
             expect(params.options).toEqual(options);
             expect(params.callback).toBe(callback);
         });
 
         it("should deal with a null canvas", function () {
-            var params = rasterizeHTML.util.parseOptionalParameters([null, options, callback]);
+            var params = util.parseOptionalParameters([null, options, callback]);
             expect(params.canvas).toBe(null);
             expect(params.options).toEqual(options);
             expect(params.callback).toBe(callback);
         });
 
         it("should make canvas optional", function () {
-            var params = rasterizeHTML.util.parseOptionalParameters([options, callback]);
+            var params = util.parseOptionalParameters([options, callback]);
             expect(params.canvas).toBe(null);
             expect(params.options).toEqual(options);
             expect(params.callback).toBe(callback);
         });
 
         it("should make options optional", function () {
-            var params = rasterizeHTML.util.parseOptionalParameters([canvas, callback]);
+            var params = util.parseOptionalParameters([canvas, callback]);
             expect(params.canvas).toBe(canvas);
             expect(params.options).toEqual({});
             expect(params.callback).toBe(callback);
         });
 
         it("should make callback optional", function () {
-            var params = rasterizeHTML.util.parseOptionalParameters([canvas, options]);
+            var params = util.parseOptionalParameters([canvas, options]);
             expect(params.canvas).toBe(canvas);
             expect(params.options).toEqual(options);
             expect(params.callback).toBe(null);
         });
 
         it("should work with canvas only", function () {
-            var params = rasterizeHTML.util.parseOptionalParameters([canvas]);
+            var params = util.parseOptionalParameters([canvas]);
             expect(params.canvas).toBe(canvas);
             expect(params.options).toEqual({});
             expect(params.callback).toBe(null);
         });
 
         it("should work with options only", function () {
-            var params = rasterizeHTML.util.parseOptionalParameters([options]);
+            var params = util.parseOptionalParameters([options]);
             expect(params.canvas).toBe(null);
             expect(params.options).toEqual(options);
             expect(params.callback).toBe(null);
         });
 
         it("should work with callback only", function () {
-            var params = rasterizeHTML.util.parseOptionalParameters([callback]);
+            var params = util.parseOptionalParameters([callback]);
             expect(params.canvas).toBe(null);
             expect(params.options).toEqual({});
             expect(params.callback).toBe(callback);
         });
 
         it("should work with empty parameter list", function () {
-            var params = rasterizeHTML.util.parseOptionalParameters([]);
+            var params = util.parseOptionalParameters([]);
             expect(params.canvas).toBe(null);
             expect(params.options).toEqual({});
             expect(params.callback).toBe(null);
@@ -630,7 +630,7 @@ describe("Utilities function", function () {
     describe("loadDocument", function () {
         it("should load document from a URL", function () {
             var doc;
-            rasterizeHTML.util.loadDocument(jasmine.getFixtures().fixturesPath + "test.html", {}, function (document) {
+            util.loadDocument(jasmine.getFixtures().fixturesPath + "test.html", {}, function (document) {
                 doc = document;
             });
 
@@ -647,7 +647,7 @@ describe("Utilities function", function () {
             var successCallback = jasmine.createSpy('successCallback'),
                 errorCallback = jasmine.createSpy('errorCallback');
 
-            rasterizeHTML.util.loadDocument(jasmine.getFixtures().fixturesPath + "non_existing_url.html", {}, successCallback, errorCallback);
+            util.loadDocument(jasmine.getFixtures().fixturesPath + "non_existing_url.html", {}, successCallback, errorCallback);
 
             waitsFor(function () {
                 return errorCallback.wasCalled;
@@ -672,21 +672,21 @@ describe("Utilities function", function () {
             });
 
             it("should attach an unique parameter to the given URL to circumvent caching if requested", function () {
-                rasterizeHTML.util.loadDocument("non_existing_url.html", {cache: 'none'}, function () {}, function () {});
+                util.loadDocument("non_existing_url.html", {cache: 'none'}, function () {}, function () {});
 
                 expect(ajaxRequest.open).toHaveBeenCalledWith('GET', jasmine.any(String), true);
                 expect(ajaxRequest.open.mostRecentCall.args[1]).toMatch(/^non_existing_url.html\?_=[0123456789]+$/);
             });
 
             it("should attach an unique parameter to the given URL to circumvent caching if requested (legacy: 'false')", function () {
-                rasterizeHTML.util.loadDocument("non_existing_url.html", {cache: false}, function () {}, function () {});
+                util.loadDocument("non_existing_url.html", {cache: false}, function () {}, function () {});
 
                 expect(ajaxRequest.open).toHaveBeenCalledWith('GET', jasmine.any(String), true);
                 expect(ajaxRequest.open.mostRecentCall.args[1]).toMatch(/^non_existing_url.html\?_=[0123456789]+$/);
             });
 
             it("should not attach an unique parameter to the given URL by default", function () {
-                rasterizeHTML.util.loadDocument("non_existing_url.html", {}, function () {}, function () {});
+                util.loadDocument("non_existing_url.html", {}, function () {}, function () {});
 
                 expect(ajaxRequest.open).toHaveBeenCalledWith('GET', "non_existing_url.html", true);
             });
@@ -694,12 +694,12 @@ describe("Utilities function", function () {
             it("should allow caching for repeated calls if requested", function () {
                 var dateNowSpy = spyOn(window.Date, 'now').andReturn(42);
 
-                rasterizeHTML.util.loadDocument("non_existing_url.html", {cache: 'none'}, function () {}, function () {});
+                util.loadDocument("non_existing_url.html", {cache: 'none'}, function () {}, function () {});
 
                 expect(ajaxRequest.open.mostRecentCall.args[1]).toEqual('non_existing_url.html?_=42');
 
                 dateNowSpy.andReturn(43);
-                rasterizeHTML.util.loadDocument("non_existing_url.html", {cache: 'repeated'}, function () {}, function () {});
+                util.loadDocument("non_existing_url.html", {cache: 'repeated'}, function () {}, function () {});
                 expect(ajaxRequest.open.mostRecentCall.args[1]).toEqual('non_existing_url.html?_=42');
 
                 expect(dateNowSpy.callCount).toEqual(1);
@@ -707,7 +707,7 @@ describe("Utilities function", function () {
 
             it("should not cache repeated calls by default", function () {
                 var dateNowSpy = spyOn(window.Date, 'now').andReturn(42);
-                rasterizeHTML.util.loadDocument("non_existing_url.html", {cache: 'none'}, function () {}, function () {});
+                util.loadDocument("non_existing_url.html", {cache: 'none'}, function () {}, function () {});
 
                 expect(ajaxRequest.open.mostRecentCall.args[1]).toEqual('non_existing_url.html?_=42');
 
@@ -717,7 +717,7 @@ describe("Utilities function", function () {
             });
 
             it("should load URLs relative to baseUrl", function () {
-                rasterizeHTML.util.loadDocument("relative/url.html", {baseUrl: "http://example.com/"}, function () {}, function () {});
+                util.loadDocument("relative/url.html", {baseUrl: "http://example.com/"}, function () {}, function () {});
 
                 expect(ajaxRequest.open.mostRecentCall.args[1]).toEqual('http://example.com/relative/url.html');
 

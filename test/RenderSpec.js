@@ -1,4 +1,5 @@
 var rasterizeHTML = require('../src/rasterizeHTML'),
+    util = require('../src/util'),
     testHelper = require('./testHelper');
 
 describe("The rendering process", function () {
@@ -232,9 +233,9 @@ describe("The rendering process", function () {
             canvas, callback, errorCallback;
 
         beforeEach(function () {
-            spyOn(rasterizeHTML.util, 'fakeHover');
-            spyOn(rasterizeHTML.util, 'fakeActive');
-            spyOn(rasterizeHTML.util, 'calculateDocumentContentSize');
+            spyOn(util, 'fakeHover');
+            spyOn(util, 'fakeActive');
+            spyOn(util, 'calculateDocumentContentSize');
             spyOn(rasterizeHTML, 'getSvgForDocument');
             spyOn(rasterizeHTML, 'renderSvg');
 
@@ -250,7 +251,7 @@ describe("The rendering process", function () {
             var svg = "the svg",
                 image = "the image";
 
-            rasterizeHTML.util.calculateDocumentContentSize.andCallFake(function (doc, w, h, callback) {
+            util.calculateDocumentContentSize.andCallFake(function (doc, w, h, callback) {
                 callback(47, 11);
             });
             rasterizeHTML.getSvgForDocument.andReturn(svg);
@@ -260,7 +261,7 @@ describe("The rendering process", function () {
 
             rasterizeHTML.drawDocumentImage(doc, canvas, {}, callback, errorCallback);
 
-            expect(rasterizeHTML.util.calculateDocumentContentSize).toHaveBeenCalledWith(doc, jasmine.any(Number), jasmine.any(Number), jasmine.any(Function));
+            expect(util.calculateDocumentContentSize).toHaveBeenCalledWith(doc, jasmine.any(Number), jasmine.any(Number), jasmine.any(Function));
             expect(rasterizeHTML.getSvgForDocument).toHaveBeenCalledWith(doc, 47, 11);
             expect(rasterizeHTML.renderSvg).toHaveBeenCalledWith(svg, canvas, jasmine.any(Function), jasmine.any(Function));
 
@@ -268,7 +269,7 @@ describe("The rendering process", function () {
         });
 
         it("should report an error when constructing the SVG image", function () {
-            rasterizeHTML.util.calculateDocumentContentSize.andCallFake(function (doc, w, h, callback) {
+            util.calculateDocumentContentSize.andCallFake(function (doc, w, h, callback) {
                 callback();
             });
             rasterizeHTML.renderSvg.andCallFake(function(svg, canvas, successCallback, errorCallback) {
@@ -283,43 +284,43 @@ describe("The rendering process", function () {
         it("should use the canvas width and height as viewport size", function () {
             rasterizeHTML.drawDocumentImage(doc, canvas, {}, callback);
 
-            expect(rasterizeHTML.util.calculateDocumentContentSize).toHaveBeenCalledWith(doc, 123, 456, jasmine.any(Function));
+            expect(util.calculateDocumentContentSize).toHaveBeenCalledWith(doc, 123, 456, jasmine.any(Function));
         });
 
         it("should make the canvas optional and apply default viewport width and height", function () {
             rasterizeHTML.drawDocumentImage(doc, null, {}, callback);
 
-            expect(rasterizeHTML.util.calculateDocumentContentSize).toHaveBeenCalledWith(doc, 300, 200, jasmine.any(Function));
+            expect(util.calculateDocumentContentSize).toHaveBeenCalledWith(doc, 300, 200, jasmine.any(Function));
         });
 
         it("should take an optional width and height", function () {
             rasterizeHTML.drawDocumentImage(doc, canvas, {width: 42, height: 4711}, callback);
 
-            expect(rasterizeHTML.util.calculateDocumentContentSize).toHaveBeenCalledWith(doc, 42, 4711, jasmine.any(Function));
+            expect(util.calculateDocumentContentSize).toHaveBeenCalledWith(doc, 42, 4711, jasmine.any(Function));
         });
 
         it("should trigger hover effect", function () {
             rasterizeHTML.drawDocumentImage(doc, canvas, {hover: '.mySpan'}, callback);
 
-            expect(rasterizeHTML.util.fakeHover).toHaveBeenCalledWith(doc, '.mySpan');
+            expect(util.fakeHover).toHaveBeenCalledWith(doc, '.mySpan');
         });
 
         it("should not trigger hover effect by default", function () {
             rasterizeHTML.drawDocumentImage(doc, canvas, {}, callback);
 
-            expect(rasterizeHTML.util.fakeHover).not.toHaveBeenCalled();
+            expect(util.fakeHover).not.toHaveBeenCalled();
         });
 
         it("should trigger active effect", function () {
             rasterizeHTML.drawDocumentImage(doc, canvas, {active: '.mySpan'}, callback);
 
-            expect(rasterizeHTML.util.fakeActive).toHaveBeenCalledWith(doc, '.mySpan');
+            expect(util.fakeActive).toHaveBeenCalledWith(doc, '.mySpan');
         });
 
         it("should not trigger active effect by default", function () {
             rasterizeHTML.drawDocumentImage(doc, canvas, {}, callback);
 
-            expect(rasterizeHTML.util.fakeActive).not.toHaveBeenCalled();
+            expect(util.fakeActive).not.toHaveBeenCalled();
         });
     });
 
