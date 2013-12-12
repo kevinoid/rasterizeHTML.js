@@ -2,7 +2,10 @@
 <html>
 <head>
     <title>Helper page for bundlePage.js</title>
-    <script type="text/javascript" src="../dist/rasterizeHTML.allinone.js"></script>
+    <script type="text/javascript" src="../build/cssom.js"></script>
+    <script type="text/javascript" src="../build/url.js"></script>
+    <script type="text/javascript" src="../build/xmlserializer.js"></script>
+    <script type="text/javascript" src="../build/inline.js"></script>
     <script>
         var sendMessage = function (cmd, content) {
             console.log(JSON.stringify({
@@ -10,9 +13,32 @@
                 content: content
             }));
         };
+        var loadDocument = function (url, successCallback, errorCallback) {
+            var ajaxRequest = new window.XMLHttpRequest();
+
+            ajaxRequest.addEventListener("load", function () {
+                if (ajaxRequest.status === 200 || ajaxRequest.status === 0) {
+                    successCallback(ajaxRequest.responseXML);
+                } else {
+                    errorCallback();
+                }
+            }, false);
+
+            ajaxRequest.addEventListener("error", function () {
+                errorCallback();
+            }, false);
+
+            try {
+                ajaxRequest.open('GET', url, true);
+                ajaxRequest.responseType = "document";
+                ajaxRequest.send(null);
+            } catch (err) {
+                errorCallback();
+            }
+        };
         window.bundlePage = function (url) {
-            rasterizeHTML.util.loadDocument(url, {}, function (doc) {
-                rasterizeHTMLInline.inlineReferences(doc, {}, function (errors) {
+            loadDocument(url, function (doc) {
+                inline.inlineReferences(doc, {}, function (errors) {
                     var xhtml;
 
                     errors.forEach(function (error) {
@@ -25,7 +51,6 @@
             }, function () {
                 sendMessage('log', "error loading file '" + url + "'");
             });
-
         };
     </script>
 </head>

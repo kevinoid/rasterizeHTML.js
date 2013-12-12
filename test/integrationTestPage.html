@@ -17,7 +17,19 @@
 
         // Work around PhantomJS not using up-to-date Webkit, and with that not supporting responseType document from XHR2.
         // See https://github.com/cburgmer/rasterizeHTML.js/issues/45
-        rasterizeHTMLInline.util.ajax("fixtures/testWithJs.html", {cache: false}, function (html) {
+        var ajax = function (url, successCallback) {
+            var ajaxRequest = new window.XMLHttpRequest();
+
+            ajaxRequest.addEventListener("load", function () {
+                if (ajaxRequest.status === 200 || ajaxRequest.status === 0) {
+                    successCallback(ajaxRequest.response);
+                }
+            }, false);
+
+            ajaxRequest.open('GET', url, true);
+            ajaxRequest.send(null);
+        };
+        ajax("fixtures/testWithJs.html", function (html) {
             rasterizeHTML.drawHTML(html, canvas,
                 {cache: false, executeJs: true, baseUrl: "fixtures/"});
         });

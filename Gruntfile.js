@@ -64,6 +64,14 @@ module.exports = function (grunt) {
                     external: ['cssom', 'xmlserializer', 'url']
                     // external: ['./src/*.js'] // TODO don't include source in test bundle
                 }
+            },
+            inline: {
+                src: 'src/inline.js',
+                dest: 'build/inline.js',
+                options: {
+                    standalone: 'inline',
+                    external: ['cssom', 'url']
+                }
             }
         },
         clean: {
