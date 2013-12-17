@@ -1,6 +1,6 @@
 "use strict";
 
-var render = require('../src/render'),
+var render = require('./render'),
     util = require('./util'),
     inlineUtil = require('./inlineUtil'),
     rasterizeHTMLInline = require('./inline');

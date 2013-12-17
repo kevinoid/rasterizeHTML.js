@@ -26,5 +26,4 @@ var isWebkit = navigator.userAgent.indexOf("WebKit") >= 0,
         if (window.console && console.log) {
             console.log(msg);
         }
-    },
-    rasterizeHTMLTestHelper = require('./testHelper');
+    };

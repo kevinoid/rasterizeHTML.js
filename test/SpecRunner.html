@@ -12,12 +12,8 @@
     <script type="text/javascript" src="../bower_components/js-imagediff/imagediff.js"></script>
 
     <!-- include source files here... -->
-    <script type="text/javascript" src="../build/CSSOM.js"></script> <!-- Only needed for Chrome -->
-    <script type="text/javascript" src="../build/xmlserializer.js"></script>
-    <script type="text/javascript" src="../build/url.js"></script>
-
+    <script type="text/javascript" src="../node_modules/inject/dist/recent/inject.js"></script>
     <script type="text/javascript" src="helpers.js"></script>
-    <script type="text/javascript" src="../build/testBundle.js"></script>
 
     <script type="text/javascript">
         (function() {
@@ -34,24 +30,25 @@
 
             jasmine.getFixtures().fixturesPath = 'fixtures/';
 
-            var currentWindowOnload = window.onload;
-
-            window.onload = function() {
-                if (currentWindowOnload) {
-                    currentWindowOnload();
-                }
-                execJasmine();
-            };
-
             function execJasmine() {
                 jasmineEnv.execute();
             }
 
+            Inject.setModuleRoot('/');
+            Inject.addModuleRule(/(cssom|xmlserializer|url)/, function(id) {
+                return 'build/' + id;
+            });
+            Inject.addModuleRule(/.*Spec/, function(id) {
+                return 'test/' + id;
+            });
+
+            require.ensure(['test/specs'], function (specs) {
+
+                execJasmine();
+            });
         })();
     </script>
-
 </head>
-
 <body>
 </body>
 </html>
