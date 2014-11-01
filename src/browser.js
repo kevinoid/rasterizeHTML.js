@@ -177,6 +177,109 @@ var browser = (function (util, xhrproxies, ayepromise, theWindow) {
         return defer.promise;
     };
 
+    var documentsHaveSameStyleSheets = function (doc1, doc2) {
+        var i, ownerNode1, ownerNode2;
+
+        if (doc1 === doc2) {
+            return true;
+        }
+
+        if (!doc1 || !doc2) {
+            return false;
+        }
+
+        // Do length check first to rule out obviously different styles
+        if (doc1.styleSheets.length !== doc2.styleSheets.length) {
+            return false;
+        }
+
+        // We use DOM3 isEqualNode to compare stylesheet equality
+        // Although we could walk the tree and compare the CSSRule instances,
+        // it's a lot of code and execution time.  Make the conservative
+        // assumption that they are not the same style.
+        if (!doc1.isEqualNode) {
+            return false;
+        }
+
+        for (i = 0; i < doc1.styleSheets.length; i++) {
+            ownerNode1 = doc1.styleSheets[i].ownerNode;
+            ownerNode2 = doc2.styleSheets[i].ownerNode;
+            if (ownerNode1 && ownerNode2) {
+                // Neither sheet was imported.  Check node equality.
+                if (!ownerNode1.isEqualNode(ownerNode2)) {
+                    return false;
+                }
+            } else if (ownerNode1 || ownerNode2) {
+                // One of the sheets was @imported, the other was not
+                return false;
+            } else {
+                // Both sheets were @imported.  Equality of importing sheets
+                // will determine overall equality.
+            }
+        }
+
+        return true;
+    };
+
+    /** Wrapper for getComputedStyle which places the document in an iframe
+     * if necessary to force calculation of computed styles. */
+    module.getComputedStyleForced = function (element, pseudoElt) {
+        var documentClone,
+            iframe,
+            style = theWindow.getComputedStyle(element, pseudoElt);
+
+        // For the style to be valid it must satisfy the following constraints:
+        //
+        // 1) It must not be null.
+        //    This can occur in Gecko when sizing is not possible.
+        //    https://bugzilla.mozilla.org/show_bug.cgi?id=795520#c7
+        //
+        // 2) It must not be an all-empty style declaration.
+        //    This can occur for detached elements in WebKit.
+        //    https://bugs.webkit.org/show_bug.cgi?id=14563
+        //
+        //    We test for this using the display property, which is always
+        //    non-empty when computed.
+        //
+        // 3) It must be computed for the correct window (presentation shell)
+        //    Gecko will use the presentation shell of the window on which
+        //    getComputedStyle is called whenever the element does not have
+        //    an associated presentation shell (e.g. detached elements).
+        //
+        //    We test for this by checking if the element has a defaultView.
+        //    If it does, it has a presentation shell.  If it does not, then
+        //    we check if the style information in the element's document
+        //    differs from the style information in the window's document (they
+        //    will be the same if the document was cloned, in which case we can
+        //    avoid an unnecessary layout).  If they differ, we do layout.
+        if (style && style.display) {
+            if (element.ownerDocument &&
+                (element.ownerDocument.defaultView ||
+                 element.ownerDocument === theWindow.document ||
+                 documentsHaveSameStyleSheets(element.ownerDocument, theWindow.document))) {
+                return style;
+            }
+        }
+
+        // FIXME:  Should use proper dimensions.
+        // Currently only used for properties not affected by page dimension.
+        iframe = createHiddenSandboxedIFrame(theWindow.document, 300, 300);
+        documentClone = iframe.contentDocument.importNode(
+                element.ownerDocument.documentElement,
+                true
+        );
+        iframe.contentDocument.replaceChild(
+                documentClone,
+                iframe.contentDocument.documentElement
+        );
+        // We need to add the element to the document so that its content gets loaded
+        theWindow.document.body.appendChild(iframe);
+
+        // FIXME:  Find cloned copy of element in documentClone...
+
+        return window.getComputedStyle(elementClone);
+    };
+
     var addHTMLTagAttributes = function (doc, html) {
         var attributeMatch = /<html((?:\s+[^>]*)?)>/im.exec(html),
             helperDoc = theWindow.document.implementation.createHTMLDocument(''),
